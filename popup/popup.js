@@ -34,28 +34,22 @@ const getData = () => {
         showUrlContent(response);
       }
     );
+
+    if (tabUrl.search("youtube.com") !== -1) {
+      chrome.tabs.sendMessage(
+        tabId,
+        { type: "getYoutube", tabId },
+        function (response) {
+          showResult(response);
+        }
+      );
+    }
   });
 };
 
 const showImageContent = (data, isInspect) => {
   let content =
     "<div style='overflow-x: scroll; padding: 14px 16px; display: block'>";
-  // const tempImageData = tabData.filter(
-  //   (x) => x.type === "image" && (!x.size || x.size <= sizeLimit) && x.url
-  // );
-  // let uniqObject = {};
-  // let index = 0;
-  // tempImageData.forEach((x) => {
-  //   if (!uniqObject[x.url]) {
-  //     uniqObject[x.url] = index;
-  //   } else if (x.size) {
-  //     uniqObject[x.url] = index;
-  //   }
-  //   ++index;
-  // });
-  // const tempSortedImageData = Object.values(uniqObject);
-  // tempSortedImageData.sort();
-  // tempSortedImageData.forEach((x) => imageData.push(tempImageData[x]));
   index = 0;
   data.forEach((x) => {
     const { url, KBSize, size } = x;
@@ -241,51 +235,7 @@ const download = (url) => {
 };
 
 function showResult(documentData) {
-  let txt = "";
-  const thumpnailPath = '//*[@id="img"]';
-  const path = '//*[@id="video-title"]';
-  // "/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[1]/div/ytd-rich-grid-media/div[1]/div/div[1]/h3/a/yt-formatted-string";
-  const nodes = document.evaluate(
-    thumpnailPath,
-    document,
-    null,
-    XPathResult.ANY_TYPE,
-    null
-  );
-  let result = nodes.iterateNext();
-  while (result) {
-    txt += result.childNodes[0].getAttribute("src") + "<br>";
-    result = nodes.iterateNext();
-  }
-
-  // parser = new DOMParser();
-  // let xml = parser.parseFromString(xmlText, "application/xml");
-
-  // console.log(xmlText);
-
-  // // path = "//html[1]/body[1]";
-  // const path = `/html/body/ytd-app/div/ytd-page-manager/ytd-browse/ytd-two-column-browse-results-renderer/div[1]/ytd-rich-grid-renderer/div[6]/ytd-rich-item-renderer[1]/div/ytd-rich-grid-media/div[1]/div/div[1]/h3/a/yt-formatted-string`;
-
-  // const sdfafsa = xml.evaluate(
-  //   path,
-  //   xml,
-  //   null,
-  //   XPathResult.FIRST_ORDERED_NODE_TYPE,
-  //   null
-  // ).singleNodeValue;
-  // console.log("sdfafsa", sdfafsa);
-
-  // var txt = "";
-  // if (xml.evaluate) {
-  //   var nodes = xml.evaluate(path, xml, null, XPathResult.ANY_TYPE, null);
-  //   var result = nodes.iterateNext();
-  //   console.log("result", result, nodes);
-  //   while (result) {
-  //     txt += result.childNodes[0].nodeValue + "<br>";
-  //     result = nodes.iterateNext();
-  //   }
-  // }
-  // console.log("text", txt);
+  console.log("documentData", documentData);
 }
 
 window.onload = function () {
