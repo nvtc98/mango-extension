@@ -1,0 +1,29 @@
+{
+    "name": "MangoExtension",
+    "version": "0.1.0",
+    "manifest_version": 2,
+    "browser_action": {
+        "default_title": "Mango Extension",
+        "default_icon": {
+            "19": "icon/19x19.png",
+            "38": "icon/38x38.png"
+        },
+        "default_popup": "popup/index.html"
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "content_scripts": [{
+        "matches": ["*://*.youtube.com/*"],
+        "js": ["content.js"]
+      }],
+    "permissions": [
+        "downloads",
+        "webRequest",
+        "activeTab",
+        "webNavigation",
+        "<all_urls>"
+    ],
+    "content_security_policy": "script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval'; object-src 'self'"
+}

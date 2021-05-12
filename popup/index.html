@@ -1,0 +1,109 @@
+<html>
+<style>
+    body {
+        font-family: Arial;
+        width: 780px;
+        height: 580px;
+        overflow: hidden;
+    }
+
+    /* Style the tab */
+    .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
+
+    /* Style the buttons inside the tab */
+    .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 15px;
+        width: 33%;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+        background-color: #aaa;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+
+    .active {
+        background-color: #aaa;
+    }
+
+    .toolbar {
+        /* height: 50px; */
+        padding: 10px;
+    }
+
+    .content {
+        overflow-x: scroll;
+        word-wrap: break-word;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        border: 1px solid #ccc;
+    }
+
+    .flex {
+        display: flex;
+        flex: 1;
+    }
+
+    .expand {
+        float: right;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+
+<body style="display: flex; flex-direction: column">
+    <div class="flex" style="overflow: hidden;">
+        <div class="flex" style="flex-direction: column; flex: 1">
+            <div class="toolbar" id="imageToolbar">
+                <button id='downloadAllBtn' style='cursor: pointer;'>Download all</button>
+                <button id='showAllBtn' style='cursor: pointer;'>Show all</button>
+            </div>
+            <div class="content" id="imageContent"></div>
+        </div>
+        <div style="width: 10px"></div>
+        <div class="flex" style="flex-direction: column">
+            <div class="toolbar" id="urlToolbar">
+                <!-- <button id="reloadBtn">Reload</button> -->
+                <button id="copyBtn" style="display:none">Copy</button>
+                <button id="inspectBtn">Inspect</button>
+                <button class="expand" id="expandBtn">&#8964;</button>
+                <div id="urlAdvancedToolbar" style="display: none; margin-top: 10px;">
+                    URL filter <input type="text" id="urlFilterInp" /><br>
+                    Output tag <input type="text" id="outputTagInp" value="img" />
+                </div>
+            </div>
+            <div class="flex" id="urlContent"></div>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+    integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+    crossorigin="anonymous"></script>
+<script type="text/javascript" src="popup.js"></script>
+
+</html>
