@@ -92,7 +92,7 @@ const showImageContent = (data, isInspect) => {
     // if (data[index].poorQuality) {
     //   continue;
     // }
-    if (data[index].hidden) {
+    if (data[index].isHidden) {
       itemDiv.style.display = "none";
       continue;
     }
@@ -106,7 +106,7 @@ const showImageContent = (data, isInspect) => {
         showImageContent(urlData, true);
         return;
       }
-      data[thisIndex].hidden = true;
+      data[thisIndex].isHidden = true;
       itemDiv.parentNode.removeChild(itemDiv);
       // chrome.runtime.sendMessage(
       //   extId,
@@ -299,7 +299,7 @@ window.onload = function () {
 
   document.getElementById("downloadAllBtn").onclick = () => {
     const list = imageData.filter((x) =>
-      isShowAll ? !x.hidden : !x.poorQuality && !x.hidden
+      isShowAll ? !x.isHidden : !x.poorQuality && !x.isHidden
     );
     if (!list.length) {
       alert(
