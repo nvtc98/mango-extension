@@ -54,15 +54,19 @@ const getYoutube = () => {
       "src"
     );
     const anchor = getElementByXpath(anchorPath, element);
-    const embeded = getEmbeded(getYoutubeId(anchor.getAttribute("href")));
+    const youtubeId = getYoutubeId(anchor.getAttribute("href"));
+    const embeded = getEmbeded(youtubeId);
+    const url = "https://www.youtube.com" + anchor.getAttribute("href");
     const title = getElementByXpath(titlePath, element)?.innerHTML;
     let description = "";
-    getElementByXpath(descPath, element).childNodes.forEach(
-      (x) => (description += x.innerHTML)
-    );
-    data.push({ thumbnail, title, description, embeded });
+    const descNode = getElementByXpath(descPath, element);
+    if (descNode.childNodes.length === 1) {
+      description = descNode.innerHTML;
+    } else {
+      descNode.childNodes.forEach((x) => (description += x.innerHTML));
+    }
+    data.push({ thumbnail, title, description, embeded, url, youtubeId });
   });
-  console.log("data", data);
   return data;
 };
 

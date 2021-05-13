@@ -1,10 +1,8 @@
 const extId = chrome.runtime.id;
 const sizeLimit = 204800; //200KB
 const dimensionsLimit = { width: 800, height: 500 };
-// let tabData = [];
 let imageData = null;
 let urlData = [];
-// let activeTab = "download";
 let urlFilter = "";
 let outputTag = "img";
 const filterHintList = [
@@ -34,16 +32,6 @@ const getData = () => {
         showUrlContent(response);
       }
     );
-
-    if (tabUrl.search("youtube.com") !== -1) {
-      chrome.tabs.sendMessage(
-        tabId,
-        { type: "getYoutube", tabId },
-        function (response) {
-          showResult(response);
-        }
-      );
-    }
   });
 };
 
@@ -233,10 +221,6 @@ const download = (url) => {
     () => {}
   );
 };
-
-function showResult(documentData) {
-  console.log("documentData", documentData);
-}
 
 window.onload = function () {
   getData();
