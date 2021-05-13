@@ -155,10 +155,10 @@ const showUrlContent = (data) => {
         },
         {
           cacheStorage: true,
-          cookies: true,
+          cookies: false,
           fileSystems: true,
           indexedDB: true,
-          localStorage: true,
+          localStorage: false,
           serviceWorkers: true,
           webSQL: true,
         },
@@ -199,7 +199,6 @@ const showUrlContent = (data) => {
   document.getElementById("urlContent").innerHTML = content;
   showUrlContentData(data);
 
-  $("#copyBtn").show();
   $("#copyBtn").click(function () {
     const copyText = document.getElementById("parseResultTextArea");
     copyText.select();
@@ -222,7 +221,7 @@ const showUrlContentData = (data, isRemoved) => {
         return (
           x.url &&
           x.url.search(urlFilter) !== -1 &&
-          (x.url.search("scontent-xsp") === -1 || x.size > 10000) &&
+          (x.url.search("scontent") === -1 || x.size > 30000) &&
           !x.isHidden
         );
       })
