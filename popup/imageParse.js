@@ -140,20 +140,57 @@ const showUrlContent = (data) => {
     showUrlContentData(data);
   };
 
-  // document.getElementById("reloadBtn").onclick = () => {
-  //   chrome.tabs.getSelected(null, function (tab) {
-  //     chrome.runtime.sendMessage(
-  //       extId,
-  //       { type: "reload", tabId: tab.id },
-  //       function (response) {}
-  //     );
-
-  //     var code = "window.location.reload(true);";
-  //     chrome.tabs.executeScript(tab.id, { code });
-
-  //     // showUrlContentData(data);
-  //   });
-  // };
+  document.getElementById("reloadBtn").onclick = () => {
+    const button = document.getElementById("reloadBtn");
+    button.innerHTML = "Please wait...";
+    button.disabled = true;
+    $("#parseResultTextArea").html("Please wait...");
+    chrome.tabs.getSelected(null, function (tab) {
+      chrome.browsingData.remove(
+        {
+          origins: [new URL(tab.url).origin],
+        },
+        {
+          cacheStorage: true,
+          cookies: true,
+          fileSystems: true,
+          indexedDB: true,
+          localStorage: true,
+          serviceWorkers: true,
+          webSQL: true,
+        },
+        () => {
+          chrome.runtime.sendMessage(
+            extId,
+            { type: "reload", tabId: tab.id },
+            function (response) {}
+          );
+          var code = `window.location.reload(true)`;
+          chrome.tabs.executeScript(tab.id, { code });
+          let dataLength = -1;
+          const interval = setInterval(() => {
+            chrome.runtime.sendMessage(
+              extId,
+              { type: "get", tabId: tab.id },
+              function (response) {
+                if (!response || dataLength !== response.length) {
+                  dataLength = response?.length;
+                  return;
+                }
+                response = response ? response.filter((x) => x) : [];
+                imageData = response || [];
+                showImageContent(imageData);
+                showUrlContent(response);
+                clearInterval(interval);
+                button.innerHTML = "Reload";
+                button.disabled = false;
+              }
+            );
+          }, 1000);
+        }
+      );
+    });
+  };
 
   const content = `<textarea id="parseResultTextArea" style="display: flex; flex:1; resize: none;" readonly></textarea>`;
   document.getElementById("urlContent").innerHTML = content;
