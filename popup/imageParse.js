@@ -74,14 +74,17 @@ const showImageContent = (data, isInspect) => {
     // if (data[index].poorQuality) {
     //   continue;
     // }
-    if (data[index].isHidden) {
+    if (
+      data[index].isHidden ||
+      (!isShowAll && !isInspect && data[index].poorQuality)
+    ) {
       itemDiv.style.display = "none";
       continue;
     }
-    document.getElementById("downloadBtn-" + index).onclick = () =>
+    document.getElementById("downloadBtn-" + thisIndex).onclick = () =>
       download(imageUrl);
 
-    document.getElementById("removeBtn-" + index).onclick = () => {
+    document.getElementById("removeBtn-" + thisIndex).onclick = () => {
       if (isInspect) {
         urlData[thisIndex].isHidden = true;
         showUrlContentData(urlData, true);
