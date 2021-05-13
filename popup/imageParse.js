@@ -300,10 +300,12 @@ window.onload = function () {
       showImageContent(imageData);
       document.getElementById("inspectBtn").innerHTML = "Inspect";
       $("#imageToolbar").css({ opacity: 1 });
+      $("#reloadBtn").show();
       return;
     }
     showImageContent(urlData, true);
     document.getElementById("inspectBtn").innerHTML = "Inspect off";
     $("#imageToolbar").css({ opacity: 0 });
+    $("#reloadBtn").hide();
   };
 };

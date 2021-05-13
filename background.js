@@ -26,7 +26,10 @@ chrome.tabs.onRemoved.addListener(function (tabId, removed) {
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(function (data) {
   const url = data.url.split("?")[0];
-  if (prevUrl[data.tabId] && prevUrl[data.tabId] === url) {
+  if (
+    url.search("facebook.com/photo") ||
+    (prevUrl[data.tabId] && prevUrl[data.tabId] === url)
+  ) {
     return;
   }
   prevUrl[data.tabId] = url;
