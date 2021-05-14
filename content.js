@@ -41,7 +41,6 @@ const forElementsByXpath = (path, cb) => {
 };
 
 const getYoutube = () => {
-  "/watch?v=f4sz7Re9f04&t=342s";
   let data = [];
   const path = '//*[@id="contents"]/ytd-video-renderer';
   const thumbnailPath = './/*[@id="img"]';
@@ -70,10 +69,30 @@ const getYoutube = () => {
   return data;
 };
 
+const getImages = () => {
+  let data = [];
+  let existence = {};
+  const path = "//img";
+  forElementsByXpath(path, (element) => {
+    const url = element.getAttribute("src");
+    if (!url || existence[url]) {
+      return;
+    }
+    existence[url] = true;
+    data.push({ url });
+  });
+  return data;
+};
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request?.type) {
     case "getYoutube":
       sendResponse(getYoutube());
+      break;
+    case "getImages":
+      setTimeout(() => {
+        sendResponse(getImages());
+      }, 1);
     default:
       break;
   }

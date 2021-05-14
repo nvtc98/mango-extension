@@ -1,0 +1,63 @@
+<html>
+<style>
+    body {
+        font-family: Arial;
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .toolbar {
+        /* height: 50px; */
+        padding: 10px 0;
+    }
+
+    .content {
+        overflow-x: scroll;
+        word-wrap: break-word;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        border: 1px solid #ccc;
+    }
+
+    .flex {
+        display: flex;
+        flex: 1;
+    }
+
+    .expand {
+        float: right;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+
+<body style="display: flex; flex: 1;">
+    <div class="flex" style="flex-direction: column; flex: 1">
+        <div class="toolbar" id="imageToolbar">
+            <button id='downloadAllBtn' style='cursor: pointer;'>Download all</button>
+            <button id='showAllBtn' style='cursor: pointer;'>Show all</button>
+            <button id="reloadBtn" style="cursor: pointer;">Reload</button>
+        </div>
+        <div class="content" id="imageContent">Loading...</div>
+    </div>
+    <div style="width: 10px"></div>
+    <div class="flex" style="flex-direction: column">
+        <div class="toolbar" id="urlToolbar">
+            <button id="copyBtn" style="cursor: pointer;">Copy</button>
+            <button class="expand" id="expandBtn">&#8964;</button>
+            <div id="urlAdvancedToolbar" style="display: none; margin-top: 10px;">
+                URL filter <input type="text" id="urlFilterInp" /><br>
+                Output tag <input type="text" id="outputTagInp" value="img" />
+            </div>
+        </div>
+        <div class="flex" id="urlContent">Loading...</div>
+    </div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+    integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+    crossorigin="anonymous"></script>
+<script type="text/javascript" src="imageParse2.js"></script>
+
+</html>
