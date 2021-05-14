@@ -35,7 +35,8 @@ const getData = () => {
             return;
           }
           clearInterval(interval);
-          parse(showResult);
+          showResult();
+          parse();
           window.location.reload();
         }
       );
@@ -46,16 +47,20 @@ const getData = () => {
       //   return;
       // }
       data = response || [];
-      parse(showResult);
+      showResult();
+      parse();
       // parse(console.log(data));
     });
   });
 };
 
-const parse = (cb) => {
-  let count = 0;
+const parse = () => {
+  let count = 0,
+    countDim = 0,
+    prevCount = 0,
+    prevCountDim = 0,
+    intervalCount = 0;
   if (!data || !data.length) {
-    cb && cb();
     return;
   }
   data.forEach((x, index) => {
@@ -83,6 +88,20 @@ const parse = (cb) => {
     }
     data[index].url = url;
 
+    //create interval
+    const interval = setInterval(() => {
+      if (count > prevCount || countDim > prevCountDim) {
+        prevCount = count;
+        prevCountDim = countDim;
+        reShowData();
+      } else {
+        ++intervalCount;
+        if (intervalCount > 10) {
+          clearInterval(interval);
+        }
+      }
+    }, 500);
+
     //get dimensions
     let img = new Image();
     img.src = url;
@@ -97,10 +116,12 @@ const parse = (cb) => {
       }
       data[index].width = this.width;
       data[index].height = this.height;
-      console.log("data[index]", data[index].width, data[index].height);
+      ++countDim;
     };
     img.onerror = function () {
       data[index].poorQuality = true;
+      data[index].isHidden = true;
+      ++countDim;
     };
 
     //get size
@@ -125,16 +146,10 @@ const parse = (cb) => {
         } else {
         }
         ++count;
-        if (count === data.length) {
-          cb && cb();
-        }
       };
       xhr.send(null);
     } catch (error) {
       ++count;
-      if (count === data.length) {
-        cb && cb();
-      }
     }
   });
 };
