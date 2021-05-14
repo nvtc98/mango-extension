@@ -2,6 +2,8 @@ const sizeLimit = 204800; //200KB
 let data = {};
 let uniqData = {};
 let prevUrl = {};
+// let storedData = {};
+// let storedExistenceData = {};
 
 // chrome.browserAction.setBadgeBackgroundColor({ color: "#E44" });
 
@@ -16,6 +18,30 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       resetData(request.tabId);
       sendResponse(true);
       break;
+    // case "storeImages":
+    //   chrome.tabs.query(
+    //     { currentWindow: true, active: true },
+    //     function (tabArray) {
+    //       tabId = tabArray[0].id;
+    //       if (!storedData[tabId]) {
+    //         storedData[tabId] = [];
+    //         storedExistenceData[tabId] = {};
+    //       }
+    //       const data = request.data.filter(
+    //         (x) => !storedExistenceData[tabId][x.url]
+    //       );
+    //       data.forEach((x) => {
+    //         storedExistenceData[tabId][x.url] = true;
+    //       });
+    //       storedData[tabId] = [...storedData[tabId], ...data];
+    //       sendResponse(storedData[tabId]);
+    //     }
+    //   );
+    //   break;
+    // case "clearStoredImages":
+    //   storedData = [];
+    //   sendResponse(storedData);
+    //   break;
   }
   return true;
 });
@@ -91,4 +117,6 @@ const getData = (tabId) => {
 const resetData = (tabId) => {
   delete data[tabId];
   delete uniqData[tabId];
+  // delete storedData[tabId];
+  // delete storedExistenceData[tabId];
 };

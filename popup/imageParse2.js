@@ -25,33 +25,41 @@ const getData = () => {
     tabId = tabArray[0].id;
     tabUrl = tabArray[0].url;
 
-    let count = 0;
     const interval = setInterval(() => {
-      chrome.tabs.sendMessage(
-        tabId,
-        { type: "getImages" },
-        function (response) {
-          if (!response || response.length === data.length) {
-            return;
-          }
-          clearInterval(interval);
-          showResult();
-          parse();
-          window.location.reload();
+      sendRequest((response) => {
+        if (!response || response.length === data.length) {
+          return;
         }
-      );
+        clearInterval(interval);
+        showResult();
+        parse();
+        window.location.reload();
+        clearInterval(interval);
+      });
     }, 1000);
-
-    chrome.tabs.sendMessage(tabId, { type: "getImages" }, function (response) {
-      // if (!response) {
-      //   return;
-      // }
+    sendRequest((response) => {
       data = response || [];
       showResult();
       parse();
-      // parse(console.log(data));
     });
   });
+};
+
+const sendRequest = (cb) => {
+  if (tabUrl.search("facebook.com/photo") !== -1) {
+    chrome.runtime.sendMessage(
+      extId,
+      { type: "get", tabId },
+      function (response) {
+        response = response ? response.filter((x) => x) : [];
+        cb && cb(response);
+      }
+    );
+  } else {
+    chrome.tabs.sendMessage(tabId, { type: "getImages" }, function (response) {
+      cb && cb(response);
+    });
+  }
 };
 
 const parse = () => {
@@ -306,8 +314,34 @@ window.onload = function () {
   };
 
   document.getElementById("reloadBtn").onclick = () => {
-    var code = `window.location.reload(true)`;
-    chrome.tabs.executeScript(tabId, { code });
+    const button = document.getElementById("reloadBtn");
+    button.innerHTML = "Please wait...";
+    button.disabled = true;
+    chrome.tabs.getSelected(null, function (tab) {
+      chrome.browsingData.remove(
+        {
+          origins: [new URL(tab.url).origin],
+        },
+        {
+          cacheStorage: true,
+          cookies: false,
+          fileSystems: true,
+          indexedDB: true,
+          localStorage: false,
+          serviceWorkers: true,
+          webSQL: true,
+        },
+        () => {
+          chrome.runtime.sendMessage(
+            extId,
+            { type: "reload", tabId: tab.id },
+            function (response) {}
+          );
+          var code = `window.location.reload(true)`;
+          chrome.tabs.executeScript(tab.id, { code });
+        }
+      );
+    });
   };
 
   $("#copyBtn").click(function () {

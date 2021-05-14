@@ -1,3 +1,6 @@
+// let storedData = [];
+// let tabId = null;
+
 const getEmbeded = (id) =>
   id
     ? `<iframe width="560" height="315" src="https://www.youtube.com/embed/${id}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
@@ -91,6 +94,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       break;
     case "getImages":
       setTimeout(() => {
+        // if (window.location.href.search("facebook.com/photo") !== -1) {
+        //   sendResponse(storedData);
+        //   return true;
+        // }
         sendResponse(getImages());
       }, 1);
     default:
@@ -98,3 +105,43 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
   return true;
 });
+
+// window.onload = () => {
+//   let tabUrl = window.location.href;
+//   let interval = null;
+//   const get = () => {
+//     if (tabUrl.search("facebook.com/photo") !== -1) {
+//       if (tabUrl === window.location.href) {
+//         return;
+//       }
+//       tabUrl = window.location.href;
+
+//       const data = getImages();
+//       chrome.runtime.sendMessage(
+//         chrome.runtime.id,
+//         { type: "storeImages", data, tabId },
+//         function (response) {
+//           storedData = response;
+//         }
+//       );
+//     } else {
+//       if (tabUrl.search("facebook.com") === -1) {
+//         clearInterval(interval);
+//       } else {
+//         tabUrl = window.location.href;
+//       }
+//       // clearInterval(interval);
+//       // chrome.runtime.sendMessage(
+//       //   chrome.runtime.id,
+//       //   { type: "clearStoredImages" },
+//       //   function (response) {
+//       //     storedData = response;
+//       //   }
+//       // );
+//     }
+//   };
+//   interval = setInterval(() => {
+//     get();
+//   }, 500);
+//   get();
+// };
