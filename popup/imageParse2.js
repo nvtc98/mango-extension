@@ -20,6 +20,7 @@ let tabId = null;
 let isShowAll = false;
 let data = [];
 let imageScrollPosition = 0;
+let size = { min: null, max: null };
 
 const getData = () => {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
@@ -279,7 +280,9 @@ const getFilteredData = () => {
           x.url &&
           x.url.search(urlFilter) !== -1 &&
           (x.url.search("scontent") === -1 || x.size > 30000) &&
-          !x.isHidden
+          !x.isHidden &&
+          (!size.min || x.KBSize >= size.min) &&
+          (!size.max || x.KBSize <= size.max)
         );
       })
     : data.filter((x) => !x.isHidden);
@@ -326,7 +329,7 @@ window.onload = function () {
 
   document.getElementById("reloadBtn").onclick = () => {
     const button = document.getElementById("reloadBtn");
-    button.innerHTML = "Please wait...";
+    button.innerHTML = "Loading...";
     button.disabled = true;
     chrome.tabs.getSelected(null, function (tab) {
       chrome.browsingData.remove(
@@ -379,5 +382,15 @@ window.onload = function () {
     setTimeout(() => {
       $("#copyBtn").html("Copy");
     }, 2000);
+  });
+
+  $("#minSizeInp").change(() => {
+    size.min = $("#minSizeInp").val();
+    reShowData();
+  });
+
+  $("#maxSizeInp").change(() => {
+    size.max = $("#maxSizeInp").val();
+    reShowData();
   });
 };

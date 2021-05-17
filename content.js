@@ -2,6 +2,8 @@
 // let tabId = null;
 let data = [];
 let existence = {};
+let tabUrl = null;
+let youtubeHiddenData = {};
 
 const getEmbeded = (id) =>
   id
@@ -45,7 +47,14 @@ const forElementsByXpath = (path, cb) => {
   }
 };
 
-const getYoutube = () => {
+const getYoutube = (hiddenData) => {
+  hiddenData.forEach((x) => {
+    if (x.youtubeId) {
+      youtubeHiddenData[x.youtubeId] = true;
+    } else if (x.title) {
+      youtubeHiddenData[x.title] = true;
+    }
+  });
   let data = [];
   const path = '//*[@id="contents"]/ytd-video-renderer';
   const thumbnailPath = './/*[@id="img"]';
@@ -54,11 +63,14 @@ const getYoutube = () => {
   const anchorPath = './/*[@id="video-title"]';
 
   forElementsByXpath(path, (element, index) => {
+    const anchor = getElementByXpath(anchorPath, element);
+    const youtubeId = getYoutubeId(anchor.getAttribute("href"));
+    if (youtubeId && existence[youtubeId]) {
+      return;
+    }
     const thumbnail = getElementByXpath(thumbnailPath, element)?.getAttribute(
       "src"
     );
-    const anchor = getElementByXpath(anchorPath, element);
-    const youtubeId = getYoutubeId(anchor.getAttribute("href"));
     const embeded = getEmbeded(youtubeId);
     const url = "https://www.youtube.com" + anchor.getAttribute("href");
     const title = getElementByXpath(titlePath, element)?.innerHTML;
@@ -69,7 +81,16 @@ const getYoutube = () => {
     } else {
       descNode.childNodes.forEach((x) => (description += x.innerHTML));
     }
-    data.push({ thumbnail, title, description, embeded, url, youtubeId });
+    data.push({
+      thumbnail,
+      title,
+      description,
+      embeded,
+      url,
+      youtubeId,
+      isHidden:
+        youtubeHiddenData[youtubeId] || youtubeHiddenData[title] ? true : false,
+    });
   });
   return data;
 };
@@ -93,7 +114,7 @@ const getImages = (oldData) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request?.type) {
     case "getYoutube":
-      sendResponse(getYoutube());
+      sendResponse(getYoutube(request.hiddenData));
       break;
     case "getImages":
       setTimeout(() => {
@@ -101,12 +122,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         //   sendResponse(storedData);
         //   return true;
         // }
-        sendResponse(getImages(request.data));
-      }, 1);
-      break;
-
-    case "getImages":
-      setTimeout(() => {
+        if (window.location.href !== tabUrl) {
+          tabUrl = window.location.href;
+          data = [];
+          existence = {};
+        }
         sendResponse(getImages(request.data));
       }, 1);
       break;
@@ -124,6 +144,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
   return true;
 });
+
+window.onload = () => {
+  tabUrl = window.location.href;
+};
 
 // window.onload = () => {
 //   let tabUrl = window.location.href;
