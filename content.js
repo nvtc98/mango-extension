@@ -1,5 +1,7 @@
 // let storedData = [];
 // let tabId = null;
+let data = [];
+let existence = {};
 
 const getEmbeded = (id) =>
   id
@@ -72,9 +74,10 @@ const getYoutube = () => {
   return data;
 };
 
-const getImages = () => {
-  let data = [];
-  let existence = {};
+const getImages = (oldData) => {
+  if (oldData && oldData.length) {
+    data = oldData;
+  }
   const path = "//img";
   forElementsByXpath(path, (element) => {
     const url = element.getAttribute("src");
@@ -98,7 +101,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         //   sendResponse(storedData);
         //   return true;
         // }
-        sendResponse(getImages());
+        sendResponse(getImages(request.data));
       }, 1);
     default:
       break;

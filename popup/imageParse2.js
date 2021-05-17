@@ -19,22 +19,25 @@ let tabUrl = null;
 let tabId = null;
 let isShowAll = false;
 let data = [];
+let imageScrollPosition = 0;
 
 const getData = () => {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
     tabId = tabArray[0].id;
     tabUrl = tabArray[0].url;
+    if (tabUrl.search("chrome://extensions") !== -1) {
+      return;
+    }
 
     const interval = setInterval(() => {
       sendRequest((response) => {
         if (!response || response.length === data.length) {
           return;
         }
-        clearInterval(interval);
-        showResult();
+        imageScrollPosition = document.getElementById("imageContent").scrollTop;
+        data = response;
         parse();
-        window.location.reload();
-        clearInterval(interval);
+        // window.location.reload();
       });
     }, 1000);
     sendRequest((response) => {
@@ -46,7 +49,7 @@ const getData = () => {
 };
 
 const sendRequest = (cb) => {
-  if (tabUrl.search("facebook.com/photo") !== -1) {
+  if (tabUrl.search("facebook.com") !== -1 && tabUrl.search("photo") !== -1) {
     chrome.runtime.sendMessage(
       extId,
       { type: "get", tabId },
@@ -56,9 +59,13 @@ const sendRequest = (cb) => {
       }
     );
   } else {
-    chrome.tabs.sendMessage(tabId, { type: "getImages" }, function (response) {
-      cb && cb(response);
-    });
+    chrome.tabs.sendMessage(
+      tabId,
+      { type: "getImages", data },
+      function (response) {
+        cb && cb(response);
+      }
+    );
   }
 };
 
@@ -111,53 +118,57 @@ const parse = () => {
     }, 500);
 
     //get dimensions
-    let img = new Image();
-    img.src = url;
-    img.onload = function () {
-      if (
-        !this.width ||
-        !this.height ||
-        this.width < dimensionsLimit.width ||
-        this.height < dimensionsLimit.height
-      ) {
+    if (!x.width || !x.height) {
+      let img = new Image();
+      img.src = url;
+      img.onload = function () {
+        if (
+          !this.width ||
+          !this.height ||
+          this.width < dimensionsLimit.width ||
+          this.height < dimensionsLimit.height
+        ) {
+          data[index].poorQuality = true;
+        }
+        data[index].width = this.width;
+        data[index].height = this.height;
+        ++countDim;
+      };
+      img.onerror = function () {
         data[index].poorQuality = true;
-      }
-      data[index].width = this.width;
-      data[index].height = this.height;
-      ++countDim;
-    };
-    img.onerror = function () {
-      data[index].poorQuality = true;
-      data[index].isHidden = true;
-      ++countDim;
-    };
+        data[index].isHidden = true;
+        ++countDim;
+      };
+    }
 
     //get size
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("HEAD", url, true);
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-          if (xhr.status == 200) {
-            size = xhr.getResponseHeader("Content-Length");
-            const KBSize = size
-              ? Math.round(((1.0 * size) / 1024) * 100) / 100
-              : null;
-            data[index] = {
-              ...data[index],
-              size,
-              KBSize,
-              poorQuality: size > sizeLimit,
-            };
+    if (!x.size) {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("HEAD", url, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+              size = xhr.getResponseHeader("Content-Length");
+              const KBSize = size
+                ? Math.round(((1.0 * size) / 1024) * 100) / 100
+                : null;
+              data[index] = {
+                ...data[index],
+                size,
+                KBSize,
+                poorQuality: size > sizeLimit,
+              };
+            } else {
+            }
           } else {
           }
-        } else {
-        }
+          ++count;
+        };
+        xhr.send(null);
+      } catch (error) {
         ++count;
-      };
-      xhr.send(null);
-    } catch (error) {
-      ++count;
+      }
     }
   });
 };
@@ -190,14 +201,13 @@ const showResult = () => {
 };
 
 const showImageContent = (data) => {
-  let content =
-    "<div style='overflow-x: scroll; padding: 14px 16px; display: block'>";
+  let content = "";
   data.forEach((x, index) => {
     const { url, KBSize, size } = x;
 
     content += `
       <div style="margin-bottom: 20px; display: flex" id="item-${index}">
-        <img src="${url}" width="120" height="100" style="object-fit: contain">
+        <img src="${url}" width="160" height="120" style="object-fit: contain">
         <div style="display: flex; justify-content: center; flex-direction: column; margin-left: 20px">
           <div>Size: ${KBSize ? KBSize + " KB" : "Unknown"}</div>
           <div id="dimension-${index}">Unknown dimensions</div>
@@ -208,8 +218,8 @@ const showImageContent = (data) => {
       </div>`;
   });
   const contentDOM = document.getElementById("imageContent");
-  contentDOM.innerHTML = content + "</div>";
-  // contentDOM.scrollTop = contentDOM.scrollHeight;
+  contentDOM.innerHTML = content;
+  contentDOM.scrollTop = imageScrollPosition;
 
   showAfterward(data);
 };
@@ -254,7 +264,7 @@ const download = (url) => {
 
 const reShowData = () => {
   const filteredData = getFilteredData();
-
+  imageScrollPosition = document.getElementById("imageContent").scrollTop;
   showImageContent(filteredData);
   showUrlContentData(filteredData);
 };
