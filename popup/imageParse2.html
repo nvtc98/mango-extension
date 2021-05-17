@@ -30,6 +30,18 @@
         font-size: 16px;
         cursor: pointer;
     }
+
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
 </style>
 
 <body style="display: flex; flex: 1;">
@@ -38,8 +50,8 @@
             <button id='downloadAllBtn' style='cursor: pointer;'>Download all</button>
             <button id='showAllBtn' style='cursor: pointer;'>Show all</button>
             <button id="reloadBtn" style="cursor: pointer; display: none;">Reload</button>
-            Size &#8805; <input type="text" id="minSizeInp" style="width:30px" />
-            Size &#8804; <input type="text" id="maxSizeInp" style="width:30px" />
+            Size &#8805; <input type="number" id="minSizeInp" style="width:30px" />
+            Size &#8804; <input type="number" id="maxSizeInp" style="width:30px" />
         </div>
         <div class="content" id="imageContent" style="padding: 12px">Loading...</div>
     </div>
