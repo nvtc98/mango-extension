@@ -208,7 +208,7 @@ const showImageContent = (data) => {
 
     content += `
       <div style="margin-bottom: 20px; display: flex" id="item-${index}">
-        <img src="${url}" width="160" height="120" style="object-fit: contain">
+        <img src="${url}" width="180" height="135" style="object-fit: contain">
         <div style="display: flex; justify-content: center; flex-direction: column; margin-left: 20px">
           <div>Size: ${KBSize ? KBSize + " KB" : "Unknown"}</div>
           <div id="dimension-${index}">Unknown dimensions</div>
