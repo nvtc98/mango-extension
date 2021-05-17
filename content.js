@@ -107,10 +107,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     case "getImages":
       setTimeout(() => {
-        // if (window.location.href.search("facebook.com/photo") !== -1) {
-        //   sendResponse(storedData);
-        //   return true;
-        // }
         sendResponse(getImages(request.data));
       }, 1);
       break;
