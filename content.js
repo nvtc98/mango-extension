@@ -75,7 +75,7 @@ const getYoutube = () => {
 };
 
 const getImages = (oldData) => {
-  if (oldData && oldData.length) {
+  if (oldData) {
     data = oldData;
   }
   const path = "//img";
@@ -103,6 +103,26 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         // }
         sendResponse(getImages(request.data));
       }, 1);
+      break;
+
+    case "getImages":
+      setTimeout(() => {
+        // if (window.location.href.search("facebook.com/photo") !== -1) {
+        //   sendResponse(storedData);
+        //   return true;
+        // }
+        sendResponse(getImages(request.data));
+      }, 1);
+      break;
+
+    case "setImages":
+      data = request.data;
+      existence = {};
+      data.forEach((x) => {
+        existence[x.url] = true;
+      });
+      break;
+
     default:
       break;
   }

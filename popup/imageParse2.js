@@ -347,8 +347,16 @@ window.onload = function () {
             { type: "reload", tabId: tab.id },
             function (response) {}
           );
+          data = [];
+          chrome.tabs.sendMessage(
+            tab.id,
+            { type: "setImages", data },
+            function (response) {}
+          );
           var code = `window.location.reload(true)`;
           chrome.tabs.executeScript(tab.id, { code });
+          button.innerHTML = "Reload";
+          button.disabled = false;
         }
       );
     });
