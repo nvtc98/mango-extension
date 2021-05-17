@@ -50,6 +50,7 @@ const getData = () => {
 
 const sendRequest = (cb) => {
   if (tabUrl.search("facebook.com") !== -1 && tabUrl.search("photo") !== -1) {
+    $("#reloadBtn").show();
     chrome.runtime.sendMessage(
       extId,
       { type: "get", tabId },
@@ -348,6 +349,8 @@ window.onload = function () {
             function (response) {}
           );
           data = [];
+          imageScrollPosition = 0;
+          document.getElementById("imageContent").scrollTop = 0;
           chrome.tabs.sendMessage(
             tab.id,
             { type: "setImages", data },
@@ -355,8 +358,10 @@ window.onload = function () {
           );
           var code = `window.location.reload(true)`;
           chrome.tabs.executeScript(tab.id, { code });
-          button.innerHTML = "Reload";
-          button.disabled = false;
+          setTimeout(() => {
+            button.innerHTML = "Reload";
+            button.disabled = false;
+          }, 2000);
         }
       );
     });

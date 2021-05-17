@@ -75,7 +75,7 @@ const getYoutube = () => {
 };
 
 const getImages = (oldData) => {
-  if (oldData) {
+  if (oldData && oldData.length) {
     data = oldData;
   }
   const path = "//img";
