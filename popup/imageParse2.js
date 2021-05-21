@@ -21,6 +21,7 @@ let isShowAll = false;
 let data = [];
 let imageScrollPosition = 0;
 let size = { min: null, max: null };
+let mediaList = [];
 
 const getData = () => {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
@@ -28,6 +29,18 @@ const getData = () => {
     tabUrl = tabArray[0].url;
     if (tabUrl.search("chrome://extensions") !== -1) {
       return;
+    }
+
+    if (tabUrl.search("pinterest.com")) {
+      chrome.runtime.sendMessage(
+        extId,
+        { type: "getMedia", tabId },
+        function (response) {
+          if (response) {
+            mediaList = response;
+          }
+        }
+      );
     }
 
     const interval = setInterval(() => {
@@ -204,6 +217,19 @@ const showResult = () => {
 
 const showImageContent = (data) => {
   let content = "";
+
+  mediaList.forEach((x) => {
+    content += `<video width="300" height="240" style="margin-bottom: 10px" controls>
+            <source src="${x.url
+              .replace(
+                "https://v.pinimg.com/videos/mc/hls",
+                "https://v.pinimg.com/videos/mc/720p"
+              )
+              .replace("m3u8", "mp4")
+              .replace("m3u", "mp4")}" type="video/mp4">
+          </video>`;
+  });
+
   data.forEach((x, index) => {
     const { url, KBSize, size } = x;
 
@@ -244,41 +270,20 @@ const showAfterward = (filteredData) => {
       reShowData();
     };
   });
-
-  $("#imageContent").sortable({
-    stop: function (event, ui) {
-      const newFilteredData = [];
-      $("#imageContent")
-        .children()
-        .each((index, item) => {
-          const id = item.id.split("-")[1];
-          newFilteredData.push(filteredData[id]);
-        });
-
-      let newData = [];
-      let j = 0;
-      for (let i = 0; i < data.length; ++i) {
-        if (
-          data[i].isHidden ||
-          data[i].url.search(urlFilter) === -1 ||
-          (size.min &&
-            data[i].KBSize < size.min &&
-            size.max &&
-            data[i].KBSize > size.max)
-        ) {
-          newData.push(data[i]);
-        } else {
-          newData.push(newFilteredData[j++]);
-        }
-      }
-      data = newData;
-      reShowData();
-    },
-  });
 };
 
 const showUrlContentData = (data) => {
   let content = "";
+  mediaList.forEach((x) => {
+    content += `<video width="1280" height="720" controls><source src="${x.url
+      .replace(
+        "https://v.pinimg.com/videos/mc/hls",
+        "https://v.pinimg.com/videos/mc/720p"
+      )
+      .replace("m3u8", "mp4")
+      .replace("m3u", "mp4")}" type="video/mp4"></video>
+`;
+  });
   data.forEach((x) => {
     let url = x.url;
     content += `<${outputTag} src="${url}"/>&#13;&#10;`;
@@ -427,5 +432,41 @@ $(function () {
   $("#maxSizeInp").change(() => {
     size.max = $("#maxSizeInp").val();
     reShowData();
+  });
+
+  $("#imageContent").sortable({
+    items: "> li",
+    stop: function (event, ui) {
+      const filteredData = getFilteredData();
+      const newFilteredData = [];
+      $("#imageContent")
+        .children()
+        .each((index, item) => {
+          if (!item.id) {
+            return;
+          }
+          const id = item.id.split("-")[1];
+          newFilteredData.push(filteredData[id]);
+        });
+
+      let newData = [];
+      let j = 0;
+      for (let i = 0; i < data.length; ++i) {
+        if (
+          data[i].isHidden ||
+          data[i].url.search(urlFilter) === -1 ||
+          (size.min &&
+            data[i].KBSize < size.min &&
+            size.max &&
+            data[i].KBSize > size.max)
+        ) {
+          newData.push(data[i]);
+        } else {
+          newData.push(newFilteredData[j++]);
+        }
+      }
+      data = newData;
+      reShowData();
+    },
   });
 });

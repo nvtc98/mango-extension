@@ -14,6 +14,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       sendResponse(getData(request.tabId));
       break;
 
+    case "getMedia":
+      sendResponse(getMediaData(request.tabId));
+      break;
+
     case "reload":
       resetData(request.tabId);
       sendResponse(true);
@@ -66,7 +70,7 @@ chrome.webRequest.onCompleted.addListener(
   function (details) {
     const { type, url, tabId } = details;
 
-    if (type !== "image") {
+    if (type !== "image" && type !== "media") {
       return;
     }
 
@@ -83,28 +87,32 @@ chrome.webRequest.onCompleted.addListener(
     data[tabId].push(details);
     uniqData[tabId][url] = true;
 
-    let size = null;
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("HEAD", url, true);
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-          if (xhr.status == 200) {
-            size = xhr.getResponseHeader("Content-Length");
-            const KBSize = size
-              ? Math.round(((1.0 * size) / 1024) * 100) / 100
-              : null;
-            if (data[tabId]) {
-              data[tabId][index] = { ...data[tabId][index], size, KBSize };
-            }
-            // }
-          } else {
-          }
-        } else {
-        }
-      };
-      xhr.send(null);
-    } catch (error) {}
+    if (type !== "image") {
+      return;
+    }
+
+    // let size = null;
+    // try {
+    //   var xhr = new XMLHttpRequest();
+    //   xhr.open("HEAD", url, true);
+    //   xhr.onreadystatechange = function () {
+    //     if (xhr.readyState == 4) {
+    //       if (xhr.status == 200) {
+    //         size = xhr.getResponseHeader("Content-Length");
+    //         const KBSize = size
+    //           ? Math.round(((1.0 * size) / 1024) * 100) / 100
+    //           : null;
+    //         if (data[tabId]) {
+    //           data[tabId][index] = { ...data[tabId][index], size, KBSize };
+    //         }
+    //         // }
+    //       } else {
+    //       }
+    //     } else {
+    //     }
+    //   };
+    //   xhr.send(null);
+    // } catch (error) {}
     // console.log("data", data);
   },
   { urls: ["<all_urls>"] }
@@ -112,6 +120,10 @@ chrome.webRequest.onCompleted.addListener(
 
 const getData = (tabId) => {
   return data[tabId];
+};
+
+const getMediaData = (tabId) => {
+  return data[tabId] ? data[tabId].filter((x) => x.type === "media") : null;
 };
 
 const resetData = (tabId) => {
