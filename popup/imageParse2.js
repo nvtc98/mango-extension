@@ -218,8 +218,8 @@ const showResult = () => {
 const showImageContent = (data) => {
   let content = "";
 
-  mediaList.forEach((x) => {
-    content += `<video width="300" height="240" style="margin-bottom: 10px" controls>
+  mediaList.forEach((x, index) => {
+    content += `<div style="margin-bottom: 10px; display: flex; align-items: center"><video width="300" height="240" controls>
             <source src="${x.url
               .replace(
                 "https://v.pinimg.com/videos/mc/hls",
@@ -227,7 +227,9 @@ const showImageContent = (data) => {
               )
               .replace("m3u8", "mp4")
               .replace("m3u", "mp4")}" type="video/mp4">
-          </video>`;
+          </video>
+          <span style="cursor: pointer; display: inline; margin-left: 10px" id="removeMediaBtn-${index}">&#x2715</span>
+          </div>`;
   });
 
   data.forEach((x, index) => {
@@ -253,6 +255,12 @@ const showImageContent = (data) => {
 };
 
 const showAfterward = (filteredData) => {
+  mediaList.forEach((x, index) => {
+    document.getElementById("removeMediaBtn-" + index).onclick = () => {
+      mediaList.splice(index, 1);
+      reShowData();
+    };
+  });
   filteredData.forEach((x, index) => {
     const { url, width, height } = x;
     const dimensionDiv = document.getElementById("dimension-" + index);
