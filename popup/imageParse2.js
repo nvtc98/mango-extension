@@ -208,8 +208,8 @@ const showImageContent = (data) => {
     const { url, KBSize, size } = x;
 
     content += `
-      <div style="margin-bottom: 20px; display: flex" id="item-${index}">
-        <img src="${url}" width="180" height="135" style="object-fit: contain">
+      <li style="margin-bottom: 20px; display: flex; height: 240px" id="item-${index}">
+        <img src="${url}" width="300" height="240" style="object-fit: contain">
         <div style="display: flex; justify-content: center; flex-direction: column; margin-left: 20px">
           <div>Size: ${KBSize ? KBSize + " KB" : "Unknown"}</div>
           <div id="dimension-${index}">Unknown dimensions</div>
@@ -217,7 +217,7 @@ const showImageContent = (data) => {
       isShowAll ? "none" : "inline"
     }" id="removeBtn-${index}">&#x2715</span></div>
         </div>
-      </div>`;
+      </li>`;
   });
   const contentDOM = document.getElementById("imageContent");
   contentDOM.innerHTML = content;
@@ -226,8 +226,8 @@ const showImageContent = (data) => {
   showAfterward(data);
 };
 
-const showAfterward = (data) => {
-  data.forEach((x, index) => {
+const showAfterward = (filteredData) => {
+  filteredData.forEach((x, index) => {
     const { url, width, height } = x;
     const dimensionDiv = document.getElementById("dimension-" + index);
     const itemDiv = document.getElementById("item-" + index);
@@ -239,10 +239,41 @@ const showAfterward = (data) => {
       download(url);
 
     document.getElementById("removeBtn-" + index).onclick = () => {
-      data[index].isHidden = true;
+      filteredData[index].isHidden = true;
       // itemDiv.parentNode.removeChild(itemDiv);
       reShowData();
     };
+  });
+
+  $("#imageContent").sortable({
+    stop: function (event, ui) {
+      const newFilteredData = [];
+      $("#imageContent")
+        .children()
+        .each((index, item) => {
+          const id = item.id.split("-")[1];
+          newFilteredData.push(filteredData[id]);
+        });
+
+      let newData = [];
+      let j = 0;
+      for (let i = 0; i < data.length; ++i) {
+        if (
+          data[i].isHidden ||
+          data[i].url.search(urlFilter) === -1 ||
+          (size.min &&
+            data[i].KBSize < size.min &&
+            size.max &&
+            data[i].KBSize > size.max)
+        ) {
+          newData.push(data[i]);
+        } else {
+          newData.push(newFilteredData[j++]);
+        }
+      }
+      data = newData;
+      reShowData();
+    },
   });
 };
 
@@ -279,16 +310,20 @@ const getFilteredData = () => {
         return (
           x.url &&
           x.url.search(urlFilter) !== -1 &&
-          (x.url.search("scontent") === -1 || x.size > 30000) &&
           !x.isHidden &&
           (!size.min || x.KBSize >= size.min) &&
           (!size.max || x.KBSize <= size.max)
         );
       })
-    : data.filter((x) => !x.isHidden);
+    : data.filter(
+        (x) =>
+          !x.isHidden &&
+          (!size.min || x.KBSize >= size.min) &&
+          (!size.max || x.KBSize <= size.max)
+      );
 };
 
-window.onload = function () {
+$(function () {
   getData();
 
   document.getElementById("expandBtn").onclick = () => {
@@ -393,4 +428,4 @@ window.onload = function () {
     size.max = $("#maxSizeInp").val();
     reShowData();
   });
-};
+});
