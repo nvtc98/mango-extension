@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html style="height: 100%; display:flex;">
+
+<style>
+    .border {
+        border: 1px solid #FCBB02;
+    }
+</style>
+
+<body style="display:flex; flex:1; margin:0; flex-direction: column; overflow: hidden;">
+
+    <div style="font-size: 15px; padding-left: 20px; height: 30px; width: 100%;">
+        Keyword
+        <input id="searchInp" type="text" style="font-size: 15px;" value="peanut" />
+        <button id="searchBtn">Search</button>
+        <span id="loading" style="display: none;">Loading...</span>
+    </div>
+    <div style="display:flex; overflow: hidden; flex:1">
+        <div style="display:flex; flex:4; padding: 10px; margin: 0px 10px 0px 0px; flex-direction: column;  border: 1px solid; overflow: scroll;" id="imageContent">
+        </div>
+        <div style="display:flex; flex:7; padding: 10px; flex-direction: column; border: 1px solid; overflow: scroll;" id="content">
+            <!-- <textarea id="textareaContent" style="flex:1; resize: none; margin-top: 10px; padding: 10px; line-height: 150%; font-family: Arial, Helvetica, sans-serif;" readonly></textarea></div> -->
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="selectPinterestImage.js"></script>
+
+</body>
+
+</html>
