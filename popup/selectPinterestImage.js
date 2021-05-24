@@ -2,6 +2,7 @@ let data = [];
 let imageData = [];
 let selectedId = null;
 let isFirstTime = true;
+let interval = null;
 
 const parseSize = (index, url) => {
   //dimensions
@@ -106,7 +107,8 @@ const showTable = (ajaxData) => {
       chrome.tabs.getSelected(null, function (tab) {
         var code = `window.location='https://www.pinterest.com/search/pins/?q=${title}'`;
         chrome.tabs.executeScript(tab.id, { code });
-        setInterval(() => {
+        clearInterval(interval);
+        interval = setInterval(() => {
           getData();
         }, 1000);
       });
@@ -124,7 +126,8 @@ $("#searchBtn").click(() => {
     type: "GET",
     success: showTable,
   });
-  $("#content").html();
+  $("#content").html("");
+  $("#imageContent").html("");
   if (!isFirstTime) {
     $("#loading").show();
   }
