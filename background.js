@@ -70,7 +70,7 @@ chrome.webRequest.onCompleted.addListener(
   function (details) {
     const { type, url, tabId } = details;
 
-    if (type !== "image" && type !== "media") {
+    if (type !== "image") {
       return;
     }
 
@@ -87,9 +87,9 @@ chrome.webRequest.onCompleted.addListener(
     data[tabId].push(details);
     uniqData[tabId][url] = true;
 
-    if (type !== "image") {
-      return;
-    }
+    // if (type !== "image") {
+    //   return;
+    // }
 
     // let size = null;
     // try {

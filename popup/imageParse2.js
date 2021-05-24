@@ -31,17 +31,17 @@ const getData = () => {
       return;
     }
 
-    if (tabUrl.search("pinterest.com")) {
-      chrome.runtime.sendMessage(
-        extId,
-        { type: "getMedia", tabId },
-        function (response) {
-          if (response) {
-            mediaList = response;
-          }
-        }
-      );
-    }
+    // if (tabUrl.search("pinterest.com")) {
+    //   chrome.runtime.sendMessage(
+    //     extId,
+    //     { type: "getMedia", tabId },
+    //     function (response) {
+    //       if (response) {
+    //         mediaList = response;
+    //       }
+    //     }
+    //   );
+    // }
 
     const interval = setInterval(() => {
       sendRequest((response) => {
