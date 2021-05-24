@@ -9,9 +9,13 @@ const parseSize = (index, url) => {
   let img = new Image();
   img.src = url;
   img.onload = function () {
-    $("#imgLabel-" + index).html(
-      $("#imgLabel-" + index).html() + `<div>${this.width}x${this.height}</div>`
-    );
+    if (
+      $("#imgLabel-" + index)
+        .html()
+        .indexOf("x") === -1
+    ) {
+      $("#imgLabel-" + index).append(`<div>${this.width}x${this.height}</div>`);
+    }
   };
   img.onerror = function () {
     $("#imgContainer-" + index).hide();
@@ -96,7 +100,7 @@ const showTable = (ajaxData) => {
     </div>`
   );
   data.forEach((x) => {
-    const { id, title } = x;
+    const { ID: id, post_title: title } = x;
     $("#content").append(
       `<div style="display:flex; margin-bottom: 10px; font-size: 14px">
         <span style="flex: 3"><button id="selectBtn-${id}">Select</button></span><span style="flex: 10">${title}</span>
@@ -104,6 +108,7 @@ const showTable = (ajaxData) => {
     );
     $(`#selectBtn-${id}`).click(() => {
       selectedId = id;
+      $("#imageContent").html("");
       chrome.tabs.getSelected(null, function (tab) {
         var code = `window.location='https://www.pinterest.com/search/pins/?q=${title}'`;
         chrome.tabs.executeScript(tab.id, { code });
@@ -119,7 +124,7 @@ const showTable = (ajaxData) => {
 $("#searchBtn").click(() => {
   const value = $("#searchInp").val();
   const url = encodeURI(
-    `https://recipe.mangoads.com.vn/wp-json/wp/v2/search?search=${value}&per_page=50&page=1`
+    `http://128.199.216.180:6675/tools/recipe/search?title=${value}&limit=50`
   );
   $.ajax({
     url,
