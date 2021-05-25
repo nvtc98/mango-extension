@@ -1,7 +1,7 @@
 let data = [];
 let imageData = [];
 let selectedId = null;
-let isFirstTime = true;
+let selectedImage = null;
 let interval = null;
 
 const parseSize = (index, url) => {
@@ -67,20 +67,26 @@ const getData = () => {
         };
       });
       $("#imageContent").html("");
+      $("#searchImageInp").show();
       imageData.forEach((x, index) => {
         $("#imageContent").append(
-          `<div style="display: flex; align-items: center" id="imgContainer-${index}">
-            <img id="img-${index}" src=${x.url} width="180" height="120" style="margin: 0 10px 10px 0; cursor: pointer; object-fit: contain" />
+          `<div style="display: flex; align-items: center" id="imgContainer-${index}" ${
+            selectedImage === x.url ? "class='border'" : ""
+          } >
+            <img id="img-${index}" src=${
+            x.url
+          } width="180" height="120" style="margin: 0 10px 10px 0; cursor: pointer; object-fit: contain" />
             <span id="imgLabel-${index}"></span>
           </div>`
         );
         parseSize(index, x.url);
-        $("#img-" + index).click(() => {
+        $("#imgContainer-" + index).click(() => {
           $(".border").removeClass("border");
-          $("#img-" + index).addClass("border");
+          $("#imgContainer-" + index).addClass("border");
           $(`#selectBtn-${selectedId}`)
             .parent()
-            .html(x.url.substr(0, 12) + "...");
+            .html(getImageDiv(selectedId, x.url));
+          saveImage(selectedId, x.url);
         });
       });
     });
@@ -95,20 +101,38 @@ const showTable = (ajaxData) => {
   $("#loading").hide();
   data = ajaxData;
   $("#content").append(
-    `<div style="display:flex; margin-bottom: 10px; font-size: 14px">
+    `<div style="display:flex; font-size: 14px">
       <span style="flex: 3">Image</span><span style="flex: 10">Title</span>
-    </div>`
+    </div> <hr style='width: 100%' />`
   );
   data.forEach((x) => {
-    const { ID: id, post_title: title } = x;
+    const { ID: id, post_title: title, WpPostmetas } = x;
+    let image = null;
+    const findImageObject = WpPostmetas.find(
+      (x) => x.meta_key === "_featured_image"
+    );
+    if (findImageObject && findImageObject.meta_value) {
+      image = findImageObject.meta_value;
+    }
     $("#content").append(
       `<div style="display:flex; margin-bottom: 10px; font-size: 14px">
-        <span style="flex: 3"><button id="selectBtn-${id}">Select</button></span><span style="flex: 10">${title}</span>
+        <span style="flex: 3">
+          ${
+            image
+              ? getImageDiv(id, image)
+              : `<button id="selectBtn-${id}">Select</button>`
+          }
+        </span><span style="flex: 10">${title}</span>
       </div>`
     );
     $(`#selectBtn-${id}`).click(() => {
       selectedId = id;
-      $("#imageContent").html("");
+      if (image) {
+        selectedImage = image;
+      }
+      $("#searchImageInp").val(title);
+      $("#searchImageInp").hide();
+      $("#imageContent").html("Loading...");
       chrome.tabs.getSelected(null, function (tab) {
         var code = `window.location='https://www.pinterest.com/search/pins/?q=${title}'`;
         chrome.tabs.executeScript(tab.id, { code });
@@ -116,6 +140,24 @@ const showTable = (ajaxData) => {
         interval = setInterval(() => {
           getData();
         }, 1000);
+      });
+      $("#searchImageInp").keyup(function (e) {
+        if (e.keyCode !== 13) {
+          return;
+        }
+        chrome.tabs.getSelected(null, function (tab) {
+          $("#searchImageInp").hide();
+          imageData = [];
+          $("#imageContent").html("Loading...");
+          var code = `window.location='https://www.pinterest.com/search/pins/?q=${$(
+            "#searchImageInp"
+          ).val()}'`;
+          chrome.tabs.executeScript(tab.id, { code });
+          clearInterval(interval);
+          interval = setInterval(() => {
+            getData();
+          }, 1000);
+        });
       });
     });
   });
@@ -133,8 +175,44 @@ $("#searchBtn").click(() => {
   });
   $("#content").html("");
   $("#imageContent").html("");
-  if (!isFirstTime) {
-    $("#loading").show();
-  }
-  isFirstTime = false;
+  $("#loading").show();
 });
+
+document
+  .getElementById("searchInp")
+  .addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) {
+      $("#searchBtn").click();
+    }
+  });
+
+const saveImage = (id, value) => {
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  var raw = JSON.stringify({
+    meta_value: value,
+  });
+
+  var requestOptions = {
+    method: "PUT",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow",
+  };
+
+  fetch(
+    "http://128.199.216.180:6675/tools/recipe/posts/" + id + "/meta/featured",
+    requestOptions
+  )
+    .then((response) => response.text())
+    .then((result) => console.log(result))
+    .catch((error) => console.log("error", error));
+};
+
+const getImageDiv = (id, url) => {
+  return `<div id="selectBtn-${id}" style="cursor: pointer">${url.substr(
+    0,
+    12
+  )}...</div>`;
+};

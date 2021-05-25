@@ -9,14 +9,16 @@
 
 <body style="display:flex; flex:1; margin:0; flex-direction: column; overflow: hidden;">
 
-    <div style="font-size: 15px; padding-left: 20px; height: 30px; width: 100%;">
+    <div style="font-size: 15px; height: 30px; width: 100%;">
         Keyword
         <input id="searchInp" type="text" style="font-size: 15px;" value="peanut" />
         <button id="searchBtn">Search</button>
         <span id="loading" style="display: none;">Loading...</span>
     </div>
     <div style="display:flex; overflow: hidden; flex:1">
-        <div style="display:flex; flex:4; padding: 10px; margin: 0px 10px 0px 0px; flex-direction: column;  border: 1px solid; overflow: scroll;" id="imageContent">
+        <div style="display:flex; flex:4; margin: 0px 10px 0px 0px; flex-direction: column; border: 1px solid">
+            <input type="text" style="margin: 10px; display: none;" id="searchImageInp" />
+            <div id="imageContent" style="overflow: scroll; padding: 10px;"></div>
         </div>
         <div style="display:flex; flex:7; padding: 10px; flex-direction: column; border: 1px solid; overflow: scroll;" id="content">
             <!-- <textarea id="textareaContent" style="flex:1; resize: none; margin-top: 10px; padding: 10px; line-height: 150%; font-family: Arial, Helvetica, sans-serif;" readonly></textarea></div> -->
