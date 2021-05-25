@@ -49,13 +49,16 @@ const getData = () => {
           return;
         }
         imageScrollPosition = document.getElementById("imageContent").scrollTop;
-        data = response;
+        data = response.filter((x) => x && x.url);
         parse();
         // window.location.reload();
       });
     }, 1000);
     sendRequest((response) => {
-      data = response || [];
+      if (!response) {
+        return;
+      }
+      data = response.filter((x) => x && x.url) || [];
       showResult();
       parse();
     });
@@ -137,20 +140,23 @@ const parse = () => {
       let img = new Image();
       img.src = url;
       img.onload = function () {
-        if (
-          !this.width ||
-          !this.height ||
-          this.width < dimensionsLimit.width ||
-          this.height < dimensionsLimit.height
-        ) {
-          data[index].poorQuality = true;
+        if (!data || !data[index]) {
+          return;
         }
+        // if (
+        //   !this.width ||
+        //   !this.height ||
+        //   this.width < dimensionsLimit.width ||
+        //   this.height < dimensionsLimit.height
+        // ) {
+        //   data[index].poorQuality = true;
+        // }
         data[index].width = this.width;
         data[index].height = this.height;
         ++countDim;
       };
       img.onerror = function () {
-        data[index].poorQuality = true;
+        // data[index].poorQuality = true;
         data[index].isHidden = true;
         ++countDim;
       };
@@ -172,7 +178,7 @@ const parse = () => {
                 ...data[index],
                 size,
                 KBSize,
-                poorQuality: size > sizeLimit,
+                // poorQuality: size > sizeLimit,
               };
             } else {
             }
@@ -218,26 +224,26 @@ const showResult = () => {
 const showImageContent = (data) => {
   let content = "";
 
-  mediaList.forEach((x, index) => {
-    content += `<div style="margin-bottom: 10px; display: flex; align-items: center"><video width="300" height="240" controls>
-            <source src="${x.url
-              .replace(
-                "https://v.pinimg.com/videos/mc/hls",
-                "https://v.pinimg.com/videos/mc/720p"
-              )
-              .replace("m3u8", "mp4")
-              .replace("m3u", "mp4")}" type="video/mp4">
-          </video>
-          <span style="cursor: pointer; display: inline; margin-left: 10px" id="removeMediaBtn-${index}">&#x2715</span>
-          </div>`;
-  });
+  // mediaList.forEach((x, index) => {
+  //   content += `<div style="margin-bottom: 10px; display: flex; align-items: center"><video width="300" height="240" controls>
+  //           <source src="${x.url
+  //             .replace(
+  //               "https://v.pinimg.com/videos/mc/hls",
+  //               "https://v.pinimg.com/videos/mc/720p"
+  //             )
+  //             .replace("m3u8", "mp4")
+  //             .replace("m3u", "mp4")}" type="video/mp4">
+  //         </video>
+  //         <span style="cursor: pointer; display: inline; margin-left: 10px" id="removeMediaBtn-${index}">&#x2715</span>
+  //         </div>`;
+  // });
 
   data.forEach((x, index) => {
     const { url, KBSize, size } = x;
 
     content += `
-      <li style="margin-bottom: 20px; display: flex; height: 240px" id="item-${index}">
-        <img src="${url}" width="300" height="240" style="object-fit: contain">
+      <div style="margin-bottom: 20px; display: flex;" id="item-${index}">
+        <img src="${url}" width="150" height="120" style="object-fit: contain" loading="lazy">
         <div style="display: flex; justify-content: center; flex-direction: column; margin-left: 20px">
           <div>Size: ${KBSize ? KBSize + " KB" : "Unknown"}</div>
           <div id="dimension-${index}">Unknown dimensions</div>
@@ -245,7 +251,7 @@ const showImageContent = (data) => {
       isShowAll ? "none" : "inline"
     }" id="removeBtn-${index}">&#x2715</span></div>
         </div>
-      </li>`;
+      </div>`;
   });
   const contentDOM = document.getElementById("imageContent");
   contentDOM.innerHTML = content;
@@ -255,12 +261,12 @@ const showImageContent = (data) => {
 };
 
 const showAfterward = (filteredData) => {
-  mediaList.forEach((x, index) => {
-    document.getElementById("removeMediaBtn-" + index).onclick = () => {
-      mediaList.splice(index, 1);
-      reShowData();
-    };
-  });
+  // mediaList.forEach((x, index) => {
+  //   document.getElementById("removeMediaBtn-" + index).onclick = () => {
+  //     mediaList.splice(index, 1);
+  //     reShowData();
+  //   };
+  // });
   filteredData.forEach((x, index) => {
     const { url, width, height } = x;
     const dimensionDiv = document.getElementById("dimension-" + index);
@@ -282,16 +288,16 @@ const showAfterward = (filteredData) => {
 
 const showUrlContentData = (data) => {
   let content = "";
-  mediaList.forEach((x) => {
-    content += `<video width="1280" height="720" controls><source src="${x.url
-      .replace(
-        "https://v.pinimg.com/videos/mc/hls",
-        "https://v.pinimg.com/videos/mc/720p"
-      )
-      .replace("m3u8", "mp4")
-      .replace("m3u", "mp4")}" type="video/mp4"></video>
-`;
-  });
+  //   mediaList.forEach((x) => {
+  //     content += `<video width="1280" height="720" controls><source src="${x.url
+  //       .replace(
+  //         "https://v.pinimg.com/videos/mc/hls",
+  //         "https://v.pinimg.com/videos/mc/720p"
+  //       )
+  //       .replace("m3u8", "mp4")
+  //       .replace("m3u", "mp4")}" type="video/mp4"></video>
+  // `;
+  //   });
   data.forEach((x) => {
     let url = x.url;
     content += `<${outputTag} src="${url}"/>&#13;&#10;`;
@@ -442,39 +448,39 @@ $(function () {
     reShowData();
   });
 
-  $("#imageContent").sortable({
-    items: "> li",
-    stop: function (event, ui) {
-      const filteredData = getFilteredData();
-      const newFilteredData = [];
-      $("#imageContent")
-        .children()
-        .each((index, item) => {
-          if (!item.id) {
-            return;
-          }
-          const id = item.id.split("-")[1];
-          newFilteredData.push(filteredData[id]);
-        });
+  // $("#imageContent").sortable({
+  //   items: "> li",
+  //   stop: function (event, ui) {
+  //     const filteredData = getFilteredData();
+  //     const newFilteredData = [];
+  //     $("#imageContent")
+  //       .children()
+  //       .each((index, item) => {
+  //         if (!item.id) {
+  //           return;
+  //         }
+  //         const id = item.id.split("-")[1];
+  //         newFilteredData.push(filteredData[id]);
+  //       });
 
-      let newData = [];
-      let j = 0;
-      for (let i = 0; i < data.length; ++i) {
-        if (
-          data[i].isHidden ||
-          data[i].url.search(urlFilter) === -1 ||
-          (size.min &&
-            data[i].KBSize < size.min &&
-            size.max &&
-            data[i].KBSize > size.max)
-        ) {
-          newData.push(data[i]);
-        } else {
-          newData.push(newFilteredData[j++]);
-        }
-      }
-      data = newData;
-      reShowData();
-    },
-  });
+  //     let newData = [];
+  //     let j = 0;
+  //     for (let i = 0; i < data.length; ++i) {
+  //       if (
+  //         data[i].isHidden ||
+  //         data[i].url.search(urlFilter) === -1 ||
+  //         (size.min &&
+  //           data[i].KBSize < size.min &&
+  //           size.max &&
+  //           data[i].KBSize > size.max)
+  //       ) {
+  //         newData.push(data[i]);
+  //       } else {
+  //         newData.push(newFilteredData[j++]);
+  //       }
+  //     }
+  //     data = newData;
+  //     reShowData();
+  //   },
+  // });
 });

@@ -1,3 +1,5 @@
+// old file //
+
 const extId = chrome.runtime.id;
 const sizeLimit = 204800; //200KB
 const dimensionsLimit = { width: 800, height: 500 };

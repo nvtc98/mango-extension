@@ -75,7 +75,7 @@ const getData = () => {
           } >
             <img id="img-${index}" src=${
             x.url
-          } width="180" height="120" style="margin: 0 10px 10px 0; cursor: pointer; object-fit: contain" />
+          } width="180" height="120" style="margin: 0 10px 10px 0; cursor: pointer; object-fit: contain" loading="lazy" />
             <span id="imgLabel-${index}"></span>
           </div>`
         );
