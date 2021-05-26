@@ -166,7 +166,7 @@ const showTable = (ajaxData) => {
 $("#searchBtn").click(() => {
   const value = $("#searchInp").val();
   const url = encodeURI(
-    `http://128.199.216.180:6675/tools/recipe/search?title=${value}&limit=50`
+    `https://middleware.mangoads.com.vn/tools/recipe/search?title=${value}&limit=50`
   );
   $.ajax({
     url,
@@ -202,7 +202,9 @@ const saveImage = (id, value) => {
   };
 
   fetch(
-    "http://128.199.216.180:6675/tools/recipe/posts/" + id + "/meta/featured",
+    "https://middleware.mangoads.com.vn/tools/recipe/posts/" +
+      id +
+      "/meta/featured",
     requestOptions
   )
     .then((response) => response.text())

@@ -21,7 +21,6 @@ let isShowAll = false;
 let data = [];
 let imageScrollPosition = 0;
 let size = { min: null, max: null };
-let mediaList = [];
 
 const getData = () => {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
@@ -30,18 +29,6 @@ const getData = () => {
     if (tabUrl.search("chrome://extensions") !== -1) {
       return;
     }
-
-    // if (tabUrl.search("pinterest.com")) {
-    //   chrome.runtime.sendMessage(
-    //     extId,
-    //     { type: "getMedia", tabId },
-    //     function (response) {
-    //       if (response) {
-    //         mediaList = response;
-    //       }
-    //     }
-    //   );
-    // }
 
     const interval = setInterval(() => {
       sendRequest((response) => {
@@ -223,27 +210,12 @@ const showResult = () => {
 
 const showImageContent = (data) => {
   let content = "";
-
-  // mediaList.forEach((x, index) => {
-  //   content += `<div style="margin-bottom: 10px; display: flex; align-items: center"><video width="300" height="240" controls>
-  //           <source src="${x.url
-  //             .replace(
-  //               "https://v.pinimg.com/videos/mc/hls",
-  //               "https://v.pinimg.com/videos/mc/720p"
-  //             )
-  //             .replace("m3u8", "mp4")
-  //             .replace("m3u", "mp4")}" type="video/mp4">
-  //         </video>
-  //         <span style="cursor: pointer; display: inline; margin-left: 10px" id="removeMediaBtn-${index}">&#x2715</span>
-  //         </div>`;
-  // });
-
   data.forEach((x, index) => {
     const { url, KBSize, size } = x;
 
     content += `
-      <div style="margin-bottom: 20px; display: flex;" id="item-${index}">
-        <img src="${url}" width="150" height="120" style="object-fit: contain" loading="lazy">
+      <div style="margin-bottom: 20px; display: flex" id="item-${index}">
+        <img src="${url}" width="180" height="135" style="object-fit: contain">
         <div style="display: flex; justify-content: center; flex-direction: column; margin-left: 20px">
           <div>Size: ${KBSize ? KBSize + " KB" : "Unknown"}</div>
           <div id="dimension-${index}">Unknown dimensions</div>
@@ -260,14 +232,8 @@ const showImageContent = (data) => {
   showAfterward(data);
 };
 
-const showAfterward = (filteredData) => {
-  // mediaList.forEach((x, index) => {
-  //   document.getElementById("removeMediaBtn-" + index).onclick = () => {
-  //     mediaList.splice(index, 1);
-  //     reShowData();
-  //   };
-  // });
-  filteredData.forEach((x, index) => {
+const showAfterward = (data) => {
+  data.forEach((x, index) => {
     const { url, width, height } = x;
     const dimensionDiv = document.getElementById("dimension-" + index);
     const itemDiv = document.getElementById("item-" + index);
@@ -279,7 +245,7 @@ const showAfterward = (filteredData) => {
       download(url);
 
     document.getElementById("removeBtn-" + index).onclick = () => {
-      filteredData[index].isHidden = true;
+      data[index].isHidden = true;
       // itemDiv.parentNode.removeChild(itemDiv);
       reShowData();
     };
@@ -288,16 +254,6 @@ const showAfterward = (filteredData) => {
 
 const showUrlContentData = (data) => {
   let content = "";
-  //   mediaList.forEach((x) => {
-  //     content += `<video width="1280" height="720" controls><source src="${x.url
-  //       .replace(
-  //         "https://v.pinimg.com/videos/mc/hls",
-  //         "https://v.pinimg.com/videos/mc/720p"
-  //       )
-  //       .replace("m3u8", "mp4")
-  //       .replace("m3u", "mp4")}" type="video/mp4"></video>
-  // `;
-  //   });
   data.forEach((x) => {
     let url = x.url;
     content += `<${outputTag} src="${url}"/>&#13;&#10;`;
@@ -329,6 +285,7 @@ const getFilteredData = () => {
         return (
           x.url &&
           x.url.search(urlFilter) !== -1 &&
+          (x.url.search("scontent") === -1 || x.size > 30000) &&
           !x.isHidden &&
           (!size.min || x.KBSize >= size.min) &&
           (!size.max || x.KBSize <= size.max)
@@ -342,7 +299,7 @@ const getFilteredData = () => {
       );
 };
 
-$(function () {
+window.onload = function () {
   getData();
 
   document.getElementById("expandBtn").onclick = () => {
@@ -447,40 +404,4 @@ $(function () {
     size.max = $("#maxSizeInp").val();
     reShowData();
   });
-
-  // $("#imageContent").sortable({
-  //   items: "> li",
-  //   stop: function (event, ui) {
-  //     const filteredData = getFilteredData();
-  //     const newFilteredData = [];
-  //     $("#imageContent")
-  //       .children()
-  //       .each((index, item) => {
-  //         if (!item.id) {
-  //           return;
-  //         }
-  //         const id = item.id.split("-")[1];
-  //         newFilteredData.push(filteredData[id]);
-  //       });
-
-  //     let newData = [];
-  //     let j = 0;
-  //     for (let i = 0; i < data.length; ++i) {
-  //       if (
-  //         data[i].isHidden ||
-  //         data[i].url.search(urlFilter) === -1 ||
-  //         (size.min &&
-  //           data[i].KBSize < size.min &&
-  //           size.max &&
-  //           data[i].KBSize > size.max)
-  //       ) {
-  //         newData.push(data[i]);
-  //       } else {
-  //         newData.push(newFilteredData[j++]);
-  //       }
-  //     }
-  //     data = newData;
-  //     reShowData();
-  //   },
-  // });
-});
+};
