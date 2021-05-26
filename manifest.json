@@ -2,6 +2,10 @@
     "name": "MangoExtension",
     "version": "0.1.9",
     "manifest_version": 2,
+    "icons": { 
+        "19": "icon/19x19.png",
+        "38": "icon/38x38.png"
+    },
     "browser_action": {
         "default_title": "Mango Extension",
         "default_icon": {

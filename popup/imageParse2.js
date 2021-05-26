@@ -190,9 +190,6 @@ const showResult = () => {
     }
   });
 
-  const content = `<textarea id="parseResultTextArea" style="display: flex; flex:1; resize: none;" readonly></textarea>`;
-  document.getElementById("urlContent").innerHTML = content;
-
   const filteredData = urlFilter
     ? data.filter((x) => {
         return (
