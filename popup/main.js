@@ -44,17 +44,19 @@ $(() => {
     $("#" + activeTab).html(html.substr(0, html.length - 2));
     $(this).html($(this).html() + " &#x25BC;");
     activeTab = $(this).attr("id");
-    $("#content").attr("src", getIframeSrc());
+    $("#content").attr("src", getIframeSrc() + "/index.html");
   });
 });
 
 const getIframeSrc = () => {
   switch (activeTab) {
     case "image2Btn":
-      return "imageParse2.html";
+      return "imageParse";
     case "youtubeBtn":
-      return "getYoutube.html";
+      return "getYoutube";
     case "recipeImageBtn":
-      return "selectPinterestImage.html";
+      return "recipe";
+    case "facebookBtn":
+      return "facebook";
   }
 };
