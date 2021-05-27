@@ -59,8 +59,10 @@ const sendRequest = (cb) => {
       extId,
       { type: "get", tabId },
       function (response) {
-        response = response ? response.filter((x) => x) : [];
-        cb && cb(response);
+        if (!window.chrome.runtime.lastError) {
+          response = response ? response.filter((x) => x) : [];
+          cb && cb(response);
+        }
       }
     );
   } else {
@@ -68,7 +70,9 @@ const sendRequest = (cb) => {
       tabId,
       { type: "getImages", data },
       function (response) {
-        cb && cb(response);
+        if (!window.chrome.runtime.lastError) {
+          cb && cb(response);
+        }
       }
     );
   }
