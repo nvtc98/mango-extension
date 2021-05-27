@@ -4,6 +4,7 @@ let data = [];
 let existence = {};
 let tabUrl = null;
 let youtubeHiddenData = {};
+let interval = null;
 
 const getEmbeded = (id) =>
   id
@@ -24,7 +25,7 @@ const getYoutubeId = (url) => {
 const getElementByXpath = (path, element) => {
   return document.evaluate(
     path,
-    element,
+    element || document,
     null,
     XPathResult.FIRST_ORDERED_NODE_TYPE,
     null
@@ -111,11 +112,79 @@ const getImages = (oldData) => {
   return data;
 };
 
+const getFacebook = async (options, cb) => {
+  const { more, scroll } = options;
+  const path = '//div[@role="feed"]/div';
+  let facebookData = [];
+  if (scroll) {
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+  if (more) {
+    forElementsByXpath(path, (element) => {
+      $(element)
+        .find("div[role='button']")
+        .each((i, item) => {
+          if ($(item).html() === "Xem thêm") {
+            $(item).click();
+          }
+        });
+    });
+  }
+  return await new Promise((resolve) => {
+    setTimeout(
+      () => {
+        forElementsByXpath(path, (element, index) => {
+          let contentList = [],
+            imageList = [];
+
+          const contentPath =
+            "./div/div/div/div/div/div/div/div/div/div[2]/div/div[3]";
+          const contentNode = getElementByXpath(contentPath, element);
+
+          $(contentNode)
+            .find("div[dir='auto']")
+            .each((i, item) => {
+              const children = $(item).children();
+              if (!children || !children.length) {
+                contentList.push(item.innerHTML);
+              } else if (children.length) {
+                let isContent = true;
+                children.each((index, element) => {
+                  if (element.tagName !== "SPAN") {
+                    isContent = false;
+                  }
+                });
+                if (isContent) {
+                  contentList.push($(item).text());
+                }
+              }
+            });
+
+          $(contentNode)
+            .find("img")
+            .each((i, item) => {
+              if ($(item).attr("class")?.length) {
+                imageList.push($(item).attr("src"));
+              }
+            });
+          if (contentList.length) {
+            facebookData.push({ contentList, imageList });
+          }
+        });
+        resolve(facebookData);
+        cb && cb(facebookData);
+      },
+      more ? 500 : 0
+    );
+  });
+};
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request?.type) {
     case "getYoutube":
       sendResponse(getYoutube(request.hiddenData));
       break;
+
     case "getImages":
       setTimeout(() => {
         // if (window.location.href.search("facebook.com/photo") !== -1) {
@@ -139,6 +208,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       });
       break;
 
+    case "getFacebook":
+      getFacebook(request, sendResponse);
+      break;
+
     default:
       break;
   }
@@ -148,43 +221,3 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 window.onload = () => {
   tabUrl = window.location.href;
 };
-
-// window.onload = () => {
-//   let tabUrl = window.location.href;
-//   let interval = null;
-//   const get = () => {
-//     if (tabUrl.search("facebook.com/photo") !== -1) {
-//       if (tabUrl === window.location.href) {
-//         return;
-//       }
-//       tabUrl = window.location.href;
-
-//       const data = getImages();
-//       chrome.runtime.sendMessage(
-//         chrome.runtime.id,
-//         { type: "storeImages", data, tabId },
-//         function (response) {
-//           storedData = response;
-//         }
-//       );
-//     } else {
-//       if (tabUrl.search("facebook.com") === -1) {
-//         clearInterval(interval);
-//       } else {
-//         tabUrl = window.location.href;
-//       }
-//       // clearInterval(interval);
-//       // chrome.runtime.sendMessage(
-//       //   chrome.runtime.id,
-//       //   { type: "clearStoredImages" },
-//       //   function (response) {
-//       //     storedData = response;
-//       //   }
-//       // );
-//     }
-//   };
-//   interval = setInterval(() => {
-//     get();
-//   }, 500);
-//   get();
-// };
