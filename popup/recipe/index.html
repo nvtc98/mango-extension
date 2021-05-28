@@ -5,6 +5,12 @@
     .border {
         border: 1px solid #FCBB02;
     }
+
+    #pageContainer {
+        display: flex;
+        justify-content: space-between;
+        width: 55%;
+    }
 </style>
 
 <body style="display:flex; flex:1; margin:0; flex-direction: column; overflow: hidden;">
@@ -20,7 +26,7 @@
             <input type="text" style="margin: 10px; display: none;" id="searchImageInp" />
             <div id="imageContent" style="overflow: scroll; padding: 10px;"></div>
         </div>
-        <div style="display:flex; flex:7; padding: 10px; flex-direction: column; border: 1px solid; overflow: scroll;" id="content">
+        <div style="display:flex; flex:7; padding: 10px; flex-direction: column; border: 1px solid; overflow-y: scroll; overflow-x: hidden;" id="content">
             <!-- <textarea id="textareaContent" style="flex:1; resize: none; margin-top: 10px; padding: 10px; line-height: 150%; font-family: Arial, Helvetica, sans-serif;" readonly></textarea></div> -->
         </div>
     </div>

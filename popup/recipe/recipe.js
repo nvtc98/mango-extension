@@ -3,6 +3,7 @@ let imageData = [];
 let selectedId = null;
 let selectedImage = null;
 let interval = null;
+let currentPage = 1;
 
 const parseSize = (index, url) => {
   //dimensions
@@ -93,10 +94,6 @@ const getData = () => {
   });
 };
 
-$(() => {
-  $("#searchBtn").click();
-});
-
 const showTable = (ajaxData) => {
   $("#loading").hide();
   data = ajaxData;
@@ -161,30 +158,21 @@ const showTable = (ajaxData) => {
       });
     });
   });
-};
-
-$("#searchBtn").click(() => {
-  const value = $("#searchInp").val();
-  const url = encodeURI(
-    `https://middleware.mangoads.com.vn/tools/recipe/search?title=${value}&limit=50`
+  $("#content").append(
+    `<div style="display: flex; justify-content: center"><div id="pageContainer"></div></div>`
   );
-  $.ajax({
-    url,
-    type: "GET",
-    success: showTable,
-  });
-  $("#content").html("");
-  $("#imageContent").html("");
-  $("#loading").show();
-});
-
-document
-  .getElementById("searchInp")
-  .addEventListener("keyup", function (event) {
-    if (event.keyCode === 13) {
-      $("#searchBtn").click();
-    }
-  });
+  let _page = currentPage < 5 ? 5 : currentPage;
+  for (let i = _page - 4; i < _page + 6; ++i) {
+    console.log("i", i);
+    $(`<a ${i === currentPage ? "" : 'href="#"'} id="page">${i}</a>`)
+      .click(function () {
+        console.log("this", this, this.innerHTML);
+        getTableData(parseInt(this.innerHTML));
+      })
+      .appendTo("#pageContainer");
+    // $("#pageContainer").append(`<a href="#" id="page">${i}</a>`);
+  }
+};
 
 const saveImage = (id, value) => {
   var myHeaders = new Headers();
@@ -218,3 +206,35 @@ const getImageDiv = (id, url) => {
     12
   )}...</div>`;
 };
+
+const getTableData = (page) => {
+  currentPage = page;
+  const value = $("#searchInp").val();
+  const url = encodeURI(
+    `https://middleware.mangoads.com.vn/tools/recipe/search?title=${value}&limit=50&page=${currentPage}`
+  );
+  $.ajax({
+    url,
+    type: "GET",
+    success: showTable,
+  });
+  $("#content").html("");
+  $("#imageContent").html("");
+  $("#loading").show();
+};
+
+$(() => {
+  $("#searchBtn").click(() => {
+    getTableData(1);
+  });
+
+  document
+    .getElementById("searchInp")
+    .addEventListener("keyup", function (event) {
+      if (event.keyCode === 13) {
+        $("#searchBtn").click();
+      }
+    });
+
+  getTableData(1);
+});
