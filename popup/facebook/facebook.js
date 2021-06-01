@@ -72,7 +72,7 @@ const sendRequest = (options, cb) => {
     tabId,
     { type: "getFacebook", ...options },
     function (response) {
-      console.log(response);
+      // console.log(response);
       if (!response) {
         return;
       }

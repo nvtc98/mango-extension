@@ -163,10 +163,8 @@ const showTable = (ajaxData) => {
   );
   let _page = currentPage < 5 ? 5 : currentPage;
   for (let i = _page - 4; i < _page + 6; ++i) {
-    console.log("i", i);
     $(`<a ${i === currentPage ? "" : 'href="#"'} id="page">${i}</a>`)
       .click(function () {
-        console.log("this", this, this.innerHTML);
         getTableData(parseInt(this.innerHTML));
       })
       .appendTo("#pageContainer");

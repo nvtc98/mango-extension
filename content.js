@@ -93,7 +93,6 @@ const getYoutube = (hiddenData) => {
         youtubeHiddenData[youtubeId] || youtubeHiddenData[title] ? true : false,
     });
   });
-  console.log(data);
   return data;
 };
 
