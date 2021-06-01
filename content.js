@@ -124,7 +124,7 @@ const getFacebook = async (options, cb) => {
       $(element)
         .find("div[role='button']")
         .each((i, item) => {
-          if ($(item).html() === "Xem thêm") {
+          if ($(item).html() === "Xem thêm" || $(item).html() === "See more") {
             $(item).click();
           }
         });
