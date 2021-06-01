@@ -1,6 +1,6 @@
 {
     "name": "MangoExtension",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "manifest_version": 2,
     "icons": { 
         "19": "icon/19x19.png",

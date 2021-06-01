@@ -56,7 +56,12 @@ const showContent = () => {
     const { contentList, imageList } = x;
     $("#content").append(
       `<div>${contentList.join("<br>")}</div>${imageList
-        .map((x) => "<div style='word-break: break-all;'>" + x + "</div>")
+        .map(
+          (x) =>
+            "<div style='word-break: break-all;'>&lt;img src='" +
+            x +
+            "' /&gt;</div>"
+        )
         .join("")}<br>`
     );
   });

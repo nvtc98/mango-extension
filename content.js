@@ -57,10 +57,10 @@ const getYoutube = (hiddenData) => {
     }
   });
   let data = [];
-  const path = '//*[@id="contents"]/ytd-video-renderer';
+  const path = '//*[@id="dismissible"]';
   const thumbnailPath = './/*[@id="img"]';
   const titlePath = './/*[@id="video-title"]/yt-formatted-string';
-  const descPath = './/*[@id="description-text"]';
+  const descPath = "./div/div[3]/yt-formatted-string";
   const anchorPath = './/*[@id="video-title"]';
 
   forElementsByXpath(path, (element, index) => {
@@ -75,13 +75,13 @@ const getYoutube = (hiddenData) => {
     const embeded = getEmbeded(youtubeId);
     const url = "https://www.youtube.com" + anchor.getAttribute("href");
     const title = getElementByXpath(titlePath, element)?.innerHTML;
-    let description = "";
     const descNode = getElementByXpath(descPath, element);
-    if (descNode.childNodes.length === 1) {
-      description = descNode.innerHTML;
-    } else {
-      descNode.childNodes.forEach((x) => (description += x.innerHTML));
-    }
+    let description = $(descNode).text();
+    // if (descNode.childNodes.length === 1) {
+    //   description = descNode.innerHTML;
+    // } else {
+    //   descNode.childNodes.forEach((x) => (description += x.innerHTML));
+    // }
     data.push({
       thumbnail,
       title,
@@ -91,6 +91,36 @@ const getYoutube = (hiddenData) => {
       youtubeId,
       isHidden:
         youtubeHiddenData[youtubeId] || youtubeHiddenData[title] ? true : false,
+    });
+  });
+  console.log(data);
+  return data;
+};
+
+const getYoutubeChannel = () => {
+  let data = [];
+  const path = '//*[@id="dismissible"]';
+  const thumbnailPath = './/*[@id="img"]';
+  const anchorPath = './/*[@id="video-title"]';
+
+  forElementsByXpath(path, (element, index) => {
+    const anchor = getElementByXpath(anchorPath, element);
+    const youtubeId = getYoutubeId(anchor.getAttribute("href"));
+    if (youtubeId && existence[youtubeId]) {
+      return;
+    }
+    const thumbnail = getElementByXpath(thumbnailPath, element)?.getAttribute(
+      "src"
+    );
+    const embeded = getEmbeded(youtubeId);
+    const url = "https://www.youtube.com" + anchor.getAttribute("href");
+    const title = anchor.innerHTML;
+    data.push({
+      thumbnail,
+      title,
+      embeded,
+      url,
+      youtubeId,
     });
   });
   return data;
@@ -182,6 +212,9 @@ const getFacebook = async (options, cb) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request?.type) {
     case "getYoutube":
+      if (window.location.href.search("youtube.com/c") !== -1) {
+        sendResponse(getYoutubeChannel());
+      }
       sendResponse(getYoutube(request.hiddenData));
       break;
 

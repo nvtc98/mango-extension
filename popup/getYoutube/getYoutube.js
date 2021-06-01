@@ -75,23 +75,75 @@ const showContent = () => {
     }
     // content
     title &&
-      (content += `${title}
+      (content += `${title}<br>
 `);
     description &&
-      (content += `${description}
+      (content += `${description}<br>
 `);
     thumbnail &&
-      (content += `${thumbnail}
+      (content += `<img src='${thumbnail}' /><br>
 `);
-    youtubeId &&
-      (content += `${youtubeId}
+    embeded &&
+      (content += `${embeded}
 `);
-    url &&
-      (content += `${url}
-`);
-    content += `
+    content += `<br><br>
     
 `;
   });
   $("#textareaContent").html(content);
+};
+
+const showContentGrid = () => {
+  $("#content").html('<table id="contentTable"></table>');
+  $("#contentTable").append(`<tr>
+  <th>Title</th>
+  <th>Url</th>
+  <th>Description</th>
+  <th>Thumbnail</th>
+  <th>Youtube ID</th>
+  <th>Embeded URL</th>
+</tr>`);
+  data.forEach((x) => {
+    const { thumbnail, title, description, embeded, youtubeId, url, isHidden } =
+      x;
+    if (isHidden) {
+      return;
+    }
+    $("#contentTable").append(`<tr>
+    <td>${title || ""}</td>
+    <td>${url || ""}</td>
+    <td>${description || ""}</td>
+    <td>${thumbnail || ""}</td>
+    <td>${youtubeId || ""}</td>
+    <td>${embeded || ""}</td>
+  </tr>`);
+  });
+};
+
+const exportExcel = () => {
+  const table = $("#contentTable");
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(table).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
+
+  if (table && table.length) {
+    var preserveColors = table.hasClass("table2excel_with_colors")
+      ? true
+      : false;
+    $(table).table2excel({
+      exclude: ".noExl",
+      name: "Excel Document Name",
+      filename:
+        "myFileName" +
+        new Date().toISOString().replace(/[\-\:\.]/g, "") +
+        ".xls",
+      fileext: ".xls",
+      exclude_img: true,
+      exclude_links: true,
+      exclude_inputs: true,
+      preserveColors: preserveColors,
+    });
+  }
 };
