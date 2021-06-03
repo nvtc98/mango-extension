@@ -80,9 +80,9 @@ const showContent = () => {
     description &&
       (content += `${description}<br>
 `);
-    thumbnail &&
-      (content += `<img src='${thumbnail}' /><br>
-`);
+    //     thumbnail &&
+    //       (content += `<img src='${thumbnail}' /><br>
+    // `);
     embeded &&
       (content += `${embeded}
 `);
