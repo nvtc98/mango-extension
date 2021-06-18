@@ -2,21 +2,32 @@ let tabId = null;
 let data = [];
 let interval = null;
 
-const getData = () => {
+const init = () => {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabArray) {
     tabId = tabArray[0].id;
     const tabUrl = tabArray[0].url;
 
-    if (tabUrl.search("facebook.com") !== -1) {
-      sendRequest();
+    if (tabUrl.search("twitter.com") !== -1) {
+      sendRequest({ get: true });
     } else {
       $("#imageContent").hide();
       $("#toolbar").hide();
       $("#content").html(
-        "<div style='font-size: 18px'>This feature only works on Facebook.</div>"
+        "<div style='font-size: 18px'>This feature only works on Twitter.</div>"
       );
     }
   });
+};
+
+const getData = (get) => {
+  sendRequest({ stop: !get });
+  if (!get) {
+    clearInterval(interval);
+    return;
+  }
+  interval = setInterval(() => {
+    sendRequest({ get: true });
+  }, 1000);
 };
 
 const showResult = () => {
@@ -54,16 +65,12 @@ const showResult = () => {
 const showContent = () => {
   $("#content").html("");
   data.forEach((x) => {
-    const { contentList, imageList } = x;
+    const { content, imageList, commentList } = x;
     $("#content").append(
-      `<div>${contentList.join("<br>")}</div>${imageList
-        .map(
-          (x) =>
-            "<div style='word-break: break-all;'>&lt;img src='" +
-            x +
-            "' /&gt;</div>"
-        )
-        .join("")}<br>`
+      `<div>${content}</div>${imageList
+        .map((x) => "<div style='word-break: break-all;'>" + x + "</div>")
+        .join("")}
+        ${commentList.map((x) => "<div>" + x + "</div>").join("")}<br>`
     );
   });
 };
@@ -71,42 +78,32 @@ const showContent = () => {
 const sendRequest = (options, cb) => {
   chrome.tabs.sendMessage(
     tabId,
-    { type: "getFacebook", ...options },
+    { type: "getTwitter", ...options },
     function (response) {
-      // console.log(response);
+      console.log(response);
       if (!response) {
         return;
       }
       data = response;
-      showResult();
+      if (options.get) {
+        showResult();
+      }
       cb && cb();
     }
   );
 };
 
 window.onload = () => {
-  getData();
+  init();
 
-  $("#moreBtn").click(() => {
-    $("#moreBtn").html("Loading...");
-    $("#moreBtn").attr("disabled", true);
-    sendRequest({ more: true });
-    setTimeout(() => {
-      $("#moreBtn").html("Click Xem thêm");
-      $("#moreBtn").attr("disabled", false);
-    }, 500);
-  });
-
-  $("#scrollBtn").click(() => {
-    if ($("#scrollBtn").html() === "Stop") {
-      $("#scrollBtn").html("Scroll");
-      clearInterval(interval);
-      return;
+  $("#getBtn").click(() => {
+    const button = $("#getBtn");
+    if (button.html() === "Get") {
+      button.html("Stop");
+      getData(true);
+    } else {
+      button.html("Get");
+      getData(false);
     }
-    $("#scrollBtn").html("Stop");
-    sendRequest({ scroll: true });
-    interval = setInterval(() => {
-      sendRequest({ scroll: true });
-    }, 1000);
   });
 };

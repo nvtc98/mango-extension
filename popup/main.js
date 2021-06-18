@@ -58,5 +58,7 @@ const getIframeSrc = () => {
       return "recipe";
     case "facebookBtn":
       return "facebook";
+    case "twitterBtn":
+      return "twitter";
   }
 };

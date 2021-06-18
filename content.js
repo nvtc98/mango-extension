@@ -5,6 +5,8 @@ let existence = {};
 let tabUrl = null;
 let youtubeHiddenData = {};
 let interval = null;
+let twitterData = [];
+let twitterStatus = "stopped";
 
 const getEmbeded = (id) =>
   id
@@ -208,6 +210,134 @@ const getFacebook = async (options, cb) => {
   });
 };
 
+const getTwitter = async (options = {}, cb) => {
+  const { get = false, stop = false } = options;
+  if (get) {
+    cb && cb(twitterData);
+    return twitterData;
+  } else {
+    twitterStatus = stop ? "stopped" : "started";
+    if (stop) {
+      return;
+    }
+  }
+  return await new Promise((resolve) => {
+    const getItem = (index) => {
+      if (twitterStatus === "stopped") {
+        // console.log("twitterData", twitterData);
+        cb && cb(twitterData);
+        resolve(twitterData);
+        return;
+      }
+      const existPath = `//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/div/div[2]/section/div/div/div[${index}]`;
+      const itemElement = getElementByXpath(existPath);
+      if (!itemElement) {
+        const scrollHeight = document.body.scrollHeight;
+        let intervalCount = 0;
+        window.scrollTo(0, document.body.scrollHeight);
+        const interval2 = setInterval(() => {
+          ++intervalCount;
+          if (intervalCount > 15) {
+            clearInterval(interval2);
+            // console.log("twitterData", twitterData);
+            cb && cb(twitterData);
+            resolve(twitterData);
+            return;
+          }
+
+          if (scrollHeight !== document.body.scrollHeight) {
+            clearInterval(interval2);
+            let intervalCount2 = 0;
+            const interval3 = setInterval(() => {
+              const isExist = !!getElementByXpath(existPath);
+              if (isExist) {
+                clearInterval(interval3);
+                getItem(index);
+              } else {
+                ++intervalCount2;
+                if (intervalCount2 > 2) {
+                  clearInterval(interval3);
+                  getItem(1);
+                  return;
+                }
+              }
+            }, 1000);
+          }
+        }, 1000);
+        return;
+      }
+      const path = `./div/div/article/div/div/div/div[2]`;
+      const clickArea = getElementByXpath(path, itemElement);
+      const maxComments = Math.min(
+        parseInt(
+          getElementByXpath(
+            "./div/div/article/div/div/div/div[2]/div[2]/div[2]/div[3]/div[1]/div/div/div[2]/span/span",
+            itemElement
+          )?.innerHTML
+        ) || 0,
+        10
+      );
+
+      if (!clickArea) {
+        getItem(index + 1);
+        return;
+      }
+
+      $(clickArea).click();
+      const contentPath =
+        '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div/div/div/article/div/div/div/div[3]/div[1]/div/div';
+
+      const imagePath =
+        '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div[1]/div/div/article/div/div/div/div[3]/div[2]/div/div/div/div//img';
+      let content = null,
+        imageList = [],
+        commentList = [];
+      const interval = setInterval(() => {
+        content = content ? content : getElementByXpath(contentPath);
+        if (content) {
+          if (!imageList.length) {
+            forElementsByXpath(imagePath, (image) => {
+              imageList.push(image.getAttribute("src"));
+            });
+          }
+
+          const commentPath =
+            '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div[1]/div/div[2]/div/section/div/div/div/div/div/article/div/div/div/div[2]/div[2]/div[2]/div[2]/div';
+          forElementsByXpath(commentPath, (comment) => {
+            const commentText = $(comment).text();
+            if (!commentText) {
+              return;
+            }
+            commentList.push(commentText);
+          });
+
+          if (commentList.length < maxComments) {
+            commentList = [];
+            window.scrollTo(
+              0,
+              document.documentElement.scrollTop + screen.height
+            );
+            return;
+          }
+          clearInterval(interval);
+
+          window.history.back();
+
+          twitterData.push({
+            content: $(content).text(),
+            imageList,
+            commentList,
+          });
+          setTimeout(() => {
+            getItem(index + 1);
+          }, 500);
+        }
+      }, 650);
+    };
+    getItem(1);
+  });
+};
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request?.type) {
     case "getYoutube":
@@ -242,6 +372,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     case "getFacebook":
       getFacebook(request, sendResponse);
+      break;
+
+    case "getTwitter":
+      getTwitter(request, sendResponse);
       break;
 
     default:

@@ -209,10 +209,11 @@ const getTableData = (page) => {
   currentPage = page;
   const value = $("#searchInp").val();
   const url = encodeURI(
-    `https://middleware.mangoads.com.vn/tools/recipe/search?title=${value}&limit=50&page=${currentPage}`
+    `https://middleware.mangoads.com.vn/wpcms/search?title=${value}&limit=50&page=${currentPage}`
   );
   $.ajax({
     url,
+    headers: { "MGS-SiteId": "recipe" },
     type: "GET",
     success: showTable,
   });
