@@ -242,6 +242,7 @@ const getTwitter = async (options = {}, cb) => {
             // console.log("twitterData", twitterData);
             cb && cb(twitterData);
             resolve(twitterData);
+            twitterStatus = "stopped";
             return;
           }
 
