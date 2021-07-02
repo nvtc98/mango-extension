@@ -5,6 +5,8 @@ window.onload = () => {
   setInterval(() => {
     getData();
   }, 1000);
+
+  $("#exportBtn").click(exportExcel);
 };
 
 const getData = () => {
@@ -94,13 +96,26 @@ const showContent = () => {
 };
 
 const showContentGrid = () => {
-  $("#content").html('<table id="contentTable"></table>');
+  $("#contentGrid").html('<table id="contentTable"></table>');
+  //   $("#contentTable").append(`<tr>
+  //   <th>Title</th>
+  //   <th>Url</th>
+  //   <th>Description</th>
+  //   <th>Thumbnail</th>
+  //   <th>Youtube ID</th>
+  //   <th>Embeded URL</th>
+  // </tr>`);
   $("#contentTable").append(`<tr>
-  <th>Title</th>
-  <th>Url</th>
-  <th>Description</th>
-  <th>Thumbnail</th>
-  <th>Youtube ID</th>
+  <th>id</th>
+  <th>recipe_id</th>
+  <th>title</th>
+  <th>excerpt</th>
+  <th>Steps</th>
+  <th>Nutrition</th>
+  <th>Ingredients</th>
+  <th>url</th>
+  <th>image</th>
+  <th>category</th>
   <th>Embeded URL</th>
 </tr>`);
   data.forEach((x) => {
@@ -110,17 +125,23 @@ const showContentGrid = () => {
       return;
     }
     $("#contentTable").append(`<tr>
+    <td>${""}</td>
+    <td>${""}</td>
     <td>${title || ""}</td>
-    <td>${url || ""}</td>
     <td>${description || ""}</td>
+    <td>${""}</td>
+    <td>${""}</td>
+    <td>${""}</td>
+    <td>${url || ""}</td>
     <td>${thumbnail || ""}</td>
-    <td>${youtubeId || ""}</td>
-    <td>${embeded || ""}</td>
+    <td>${""}</td>
+    <td>https://www.youtube.com/embed/${youtubeId || ""}</td>
   </tr>`);
   });
 };
 
 const exportExcel = () => {
+  showContentGrid();
   const table = $("#contentTable");
   var $temp = $("<input>");
   $("body").append($temp);
@@ -134,11 +155,8 @@ const exportExcel = () => {
       : false;
     $(table).table2excel({
       exclude: ".noExl",
-      name: "Excel Document Name",
-      filename:
-        "myFileName" +
-        new Date().toISOString().replace(/[\-\:\.]/g, "") +
-        ".xls",
+      name: "Youtube Crawl",
+      filename: "Youtube-crawl.xls",
       fileext: ".xls",
       exclude_img: true,
       exclude_links: true,
