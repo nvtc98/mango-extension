@@ -131,15 +131,30 @@ const getImages = (oldData) => {
   if (oldData && oldData.length) {
     data = oldData;
   }
+
+  let windowUrl = tabUrl.split("/");
+  delete windowUrl[windowUrl.length - 1];
+  windowUrl = windowUrl.join("/");
+  if (windowUrl[windowUrl.length - 1] == "/") {
+    windowUrl = windowUrl.substr(0, windowUrl.length - 1);
+  }
+
   const path = "//img";
   forElementsByXpath(path, (element) => {
-    const url = element.getAttribute("src");
+    let url = element.getAttribute("src");
     if (!url || existence[url]) {
       return;
     }
     existence[url] = true;
-    data.push({ url });
+    let urlToPush = url;
+    if (urlToPush.substr(0, 2) === "//") {
+      urlToPush = "https:" + url;
+    } else if (urlToPush[0] === "/") {
+      urlToPush = windowUrl + url;
+    }
+    data.push({ url: urlToPush });
   });
+  console.log(windowUrl, data);
   return data;
 };
 
